@@ -1,0 +1,757 @@
+1 REMark * * * * * * * * * * * *
+2 REMark * QL PAINT SHOP V2.1  *
+3 REMark * (c) 1987 Much Soft  *
+4 REMark * * * * * * * * * * * *
+5 REMark * Thomas Much         *
+6 REMark * Koppelweg 16a       *
+7 REMark * 3201 Diekholzen     *
+8 REMark * Tel.: 05121/262007  *
+9 REMark * * * * * * * * * * * *
+10 CLEAR: RESTORE : TRA 1: BAUD 9600: OPEN #3,ser1: RANDOMISE
+12 DIM icf(20),xfp(4),yfp(4): FOR q=1 TO 20: icf(q)=0: END FOR q
+14 pap=0: in=7: pos_x=100: pos_y=100: art=1: sh„he=0: csh=0: csb=2: cshp=10: csbp=12: fll=0: pm=1: muster=3: ars=1
+16 WINDOW #2,512,216,0,40: PAPER #2,pap: INK #2,in: OVER#2,0: CLS#2: MODE 8
+20 CSIZE csb,csh: CSIZE #2,csb,csh: SET 1,44508: AT 5,5: PRINT "Files to be loaded:   ...": AT 5,25: PRINT "4": LOCK
+22 pscde=RESPR(500): LBYTES "fdk1_PaintShop_cde ",pscde: CALL pscde: SET 1,44508: AT 5,25: PRINT "3": LOCK
+24 adr1=RESPR(1500): LBYTES "fdk1_Future_char ",adr1: SET 1,adr1: AT 5,25: PRINT "2": LOCK
+26 adr2=RESPR(1500): LBYTES "fdk1_Old_char ",adr2: SET 1,adr2: AT 5,25: PRINT "1": LOCK
+28 adr3=RESPR(1500): LBYTES "fdk1_Script_char ",adr3: CLS
+30 scr2=RESPR(32768)
+34 SCR_SAVE scr2: SCR_SAVE scr2+5120
+36 icons: bsh: steuerung
+39 STOP
+50 DEFine PROCedure selon
+52  SELect ON art
+54   =1: pfeil
+56   =2: zeichen
+58   =3: punkt
+60   =4: pinsel
+62   =5: dose
+64   =6: curs
+66  END SELect 
+69 END DEFine 
+100 DEFine PROCedure steuerung
+110  REPeat wieder
+112   selon
+114   REPeat warten
+116    IF KEYROW(1)>0 THEN selon: EXIT warten
+117    tasten
+118   END REPeat warten
+120   k1=KEYROW(1): k7=KEYROW(7)
+122   pm=1
+124   IF k7&&2 THEN pm=10
+126   IF k7&&4 THEN pm=20
+130   IF k1&&2 THEN pos_x=pos_x-pm
+132   IF k1&&16 THEN pos_x=pos_x+pm
+134   IF k1&&4 THEN pos_y=pos_y+pm
+136   IF k1&&128 THEN pos_y=pos_y-pm
+140   IF pos_x>248 THEN pos_x=248
+142   IF pos_x<0 THEN pos_x=0
+144   IF pos_y>255 THEN pos_y=255
+146   IF pos_y<8 THEN pos_y=8
+150   IF k1=64 THEN abfrage
+198  END REPeat wieder
+199 END DEFine 
+200 DEFine PROCedure abfrage
+202  FOR w=1 TO 20: IF icf(w)=1 THEN icf(w)=0: fi w: END FOR w
+204  art=1: plus=20: pls=21
+206  IF pos_y>235 AND pos_y<255 THEN plus=0: ELSE IF pos_y>216 AND pos_y<235 THEN plus=10
+208  x=pos_x
+210  IF x>1 AND x<30 THEN pls=1
+211  IF x>30 AND x<55 THEN pls=2
+212  IF x>55 AND x<80 THEN pls=3
+213  IF x>80 AND x<105 THEN pls=4
+214  IF x>105 AND x<130 THEN pls=5
+215  IF x>130 AND x<155 THEN pls=6
+216  IF x>155 AND x<180 THEN pls=7
+217  IF x>180 AND x<205 THEN pls=8
+218  IF x>205 AND x<230 THEN pls=9
+219  IF x>230 AND x<255 THEN pls=10
+222  ps=plus+pls
+230  IF ps>0 AND ps<21 AND ps<>11 THEN fi ps: icf(ps)=1: sichern
+240  SELect ON ps
+242   =1: haco
+243   =2: file
+244   =3: schrift
+245   =4: paint
+246   =5: quad 0
+247   =6: kreis 0,0
+248   =7: kreis 0,1
+249   =8: vier 0
+250   =9: strich
+251   =10: stern
+252   =11: bscroll
+253   =12: colors
+254   =13: pnkt
+255   =14: spray
+256   =15: quad 1
+257   =16: kreis 1,0
+258   =17: kreis 1,1
+259   =18: vier 1
+260   =19: bogen
+261   =20: stellen
+269  END SELect 
+299 END DEFine 
+1000 DEFine PROCedure schrift
+1002  art=2: CSIZE#2,csb,csh
+1010  REPeat wieder
+1012   selon
+1014   REPeat warten
+1016    IF KEYROW(1)>0 THEN selon: EXIT warten
+1018   END REPeat warten
+1020   steu2
+1026   IF k1=64 THEN EXIT wieder
+1029  END REPeat wieder
+1030  IF pos_y>215 THEN abfrage: steuerung
+1040  IF 255-(csbp+pos_x)>0 AND (pos_y-cshp)>0 THEN CURSOR#2,pos_x*2-1,215-pos_y: ELSE bell: GO TO 1010
+1042  selons
+1044  INK#2,in: INPUT#2,bst$;
+1046  LOCK
+1049  GO TO 1010
+1099 END DEFine 
+1100 DEFine PROCedure pnkt
+1102  art=3
+1110  REPeat wieder
+1112   selon
+1114   REPeat warten
+1116    IF KEYROW(1)>0 THEN selon: EXIT warten
+1118   END REPeat warten
+1120   steu2
+1126   IF k1=64 THEN EXIT wieder
+1129  END REPeat wieder
+1130  IF pos_y>215 THEN abfrage: steuerung
+1140  gpl pos_x+4,pos_y-4
+1149  GO TO 1110
+1199 END DEFine 
+1200 DEFine PROCedure strich
+1202  art=6
+1210  REPeat wieder
+1212   selon
+1214   REPeat warten
+1216    IF KEYROW(1)>0 THEN selon: EXIT warten
+1218   END REPeat warten
+1220   steu2
+1226   IF k1=64 THEN EXIT wieder
+1228   IF k1=8 THEN GO TO 1210
+1229  END REPeat wieder
+1230  IF pos_y>215 THEN abfrage: steuerung
+1232  x1=176*(pos_x+3)/255: y1=100*(pos_y-3)/216: BEEP 1000,20
+1234  INK #2,7-pap
+1240  REPeat wieder2
+1242   selon: OVER #2,-1: LINE #2,x1,y1 TO 176*(pos_x+3)/255,100*(pos_y-3)/216: OVER #2,0
+1244   REPeat warten2
+1246    IF KEYROW(1)>0 THEN OVER #2,-1: LINE #2,x1,y1 TO 176*(pos_x+3)/255,100*(pos_y-3)/216: OVER #2,0: selon: EXIT warten2
+1248   END REPeat warten2
+1250   steu2
+1252   IF k1=64 THEN EXIT wieder2
+1254  END REPeat wieder2
+1256  IF pos_y>215 THEN abfrage: steuerung
+1260  INK #2,in: LINE #2,x1,y1 TO 176*(pos_x+3)/255,100*(pos_y-3)/216
+1262  BEEP 1000,20: PAUSE
+1269  GO TO 1210
+1299 END DEFine 
+1300 DEFine PROCedure bogen
+1302  art=6
+1310  REPeat wieder
+1312   selon
+1314   REPeat warten
+1316    IF KEYROW(1)>0 THEN selon: EXIT warten
+1318   END REPeat warten
+1320   steu2
+1326   IF k1=64 THEN EXIT wieder
+1329  END REPeat wieder
+1330  IF pos_y>215 THEN abfrage: steuerung
+1332  x1=176*(pos_x+3)/255: y1=100*(pos_y-3)/216: kx=pos_x+4: ky=pos_y-4
+1334  INK #2,7-pap
+1336  OVER -1: gpl kx,ky: OVER 0
+1338  BEEP 1000,20: PAUSE
+1340  REPeat wieder2
+1342   selon
+1344   REPeat warten2
+1346    IF KEYROW(1)>0 THEN selon: EXIT warten2
+1348   END REPeat warten2
+1350   steu2
+1352   IF k1=64 THEN OVER -1: gpl kx,ky: OVER 0: EXIT wieder2
+1356  END REPeat wieder2
+1358  IF pos_y>215 THEN abfrage: steuerung
+1360  x2=176*(pos_x+3)/255: y2=100*(pos_y-3)/216: k2x=pos_x: k2y=pos_y: krm=0: INK #2,7-pap
+1362  REPeat wieder3
+1364   OVER #2,-1: ARC #2,x1,y1 TO x2,y2,krm: OVER #2,0
+1366   REPeat warten3
+1368    IF KEYROW(1)>0 THEN OVER #2,-1: ARC #2,x1,y1 TO x2,y2,krm: OVER #2,0: EXIT warten3
+1370   END REPeat warten3
+1372   steu2
+1374   IF k1=64 THEN EXIT wieder3
+1376   IF k1=4 THEN krm=krm+.1
+1378   IF k1=128 THEN krm=krm-.1
+1380   IF k1=8 THEN GO TO 1310
+1382  END REPeat wieder3
+1384  INK #2,in: ARC #2,x1,y1 TO x2,y2,krm
+1386  pos_x=k2x: pos_y=k2y
+1389  GO TO 1310
+1399 END DEFine 
+1400 DEFine PROCedure quad (flt)
+1402  art=6: fll=flt
+1410  REPeat wieder
+1412   selon
+1414   REPeat warten
+1416    IF KEYROW(1)>0 THEN selon: EXIT warten
+1418   END REPeat warten
+1420   steu2
+1426   IF k1=64 THEN EXIT wieder
+1428   IF k1=8 THEN GO TO 1410
+1429  END REPeat wieder
+1430  IF pos_y>215 THEN abfrage: steuerung
+1432  x1=176*(pos_x+3)/255: y1=100*(pos_y-3)/216: BEEP 1000,20
+1434  INK #2,7-pap
+1440  REPeat wieder2
+1442   x2=176*(pos_x+3)/255: y2=100*(pos_y-3)/216: selon: OVER #2,-1: LINE #2,x1,y1 TO x1,y2 TO x2,y2 TO x2,y1 TO x1,y1: OVER #2,0
+1444   REPeat warten2
+1446    IF KEYROW(1)>0 THEN OVER #2,-1: LINE #2,x1,y1 TO x1,y2 TO x2,y2 TO x2,y1 TO x1,y1: OVER #2,0: selon: EXIT warten2
+1448   END REPeat warten2
+1450   steu2
+1452   IF k1=64 THEN EXIT wieder2
+1454  END REPeat wieder2
+1456  IF pos_y>215 THEN abfrage: steuerung
+1460  INK #2,in: FILL #2,fll: LINE #2,x1,y1 TO x1,y2 TO x2,y2 TO x2,y1 TO x1,y1: FILL #2,0
+1462  BEEP 1000,20: PAUSE
+1469  GO TO 1410
+1499 END DEFine 
+1500 DEFine PROCedure spray
+1502  art=5
+1510  REPeat wieder
+1512   selon
+1514   REPeat warten
+1516    IF KEYROW(1)>0 THEN selon: EXIT warten
+1518   END REPeat warten
+1520   steu2
+1526   IF k1=64 THEN EXIT wieder
+1529  END REPeat wieder
+1530  IF pos_y>215 THEN abfrage: steuerung
+1540  FOR pk=0 TO 5
+1541   wkl=RND(0 TO 360)
+1542   px=RND(5): plx=pos_x+COS(RAD(wkl))*px+4
+1544   IF plx<0 OR plx>256 THEN GO TO 1542
+1546   py=RND(5): ply=pos_y+SIN(RAD(wkl))*py-3
+1548   IF ply<0 OR ply>215 THEN GO TO 1546
+1550   pen in: gpl plx,ply
+1552  END FOR pk
+1554  IF KEYROW(1)=64 THEN GO TO 1540
+1559  GO TO 1510
+1599 END DEFine 
+1600 DEFine PROCedure paint
+1602  art=4
+1610  REPeat wieder
+1612   selon
+1614   REPeat warten
+1616    IF KEYROW(1)>0 THEN selon: EXIT warten
+1618   END REPeat warten
+1620   pm=1: steu2
+1622   IF k1=8 THEN abfrage: steuerung
+1624   IF k1=64 THEN IF pos_y>215 THEN abfrage: steuerung
+1630   IF k7=1 AND pos_y<217 THEN selonm
+1639  END REPeat wieder
+1699 END DEFine 
+1700 DEFine PROCedure stern
+1702  art=6
+1710  REPeat wieder
+1712   selon
+1714   REPeat warten
+1716    IF KEYROW(1)>0 THEN selon: EXIT warten
+1718   END REPeat warten
+1720   steu2
+1726   IF k1=64 THEN EXIT wieder
+1728   IF k1=8 THEN GO TO 1710
+1729  END REPeat wieder
+1730  IF pos_y>215 THEN abfrage: steuerung
+1732  x1=176*(pos_x+3)/255: y1=100*(pos_y-3)/216: BEEP 1000,20
+1734  INK #2,7-pap
+1740  REPeat wieder2
+1742   selon: OVER #2,-1: LINE #2,x1,y1 TO 176*(pos_x+3)/255,100*(pos_y-3)/216: OVER #2,0
+1744   REPeat warten2
+1746    IF KEYROW(1)>0 THEN OVER #2,-1: LINE #2,x1,y1 TO 176*(pos_x+3)/255,100*(pos_y-3)/216: OVER #2,0: selon: EXIT warten2
+1748   END REPeat warten2
+1750   steu2
+1752   IF k1=64 THEN EXIT wieder2
+1754   IF k1=8 THEN GO TO 1710
+1756  END REPeat wieder2
+1758  IF pos_y>215 THEN abfrage: steuerung
+1760  INK #2,in: LINE #2,x1,y1 TO 176*(pos_x+3)/255,100*(pos_y-3)/216
+1762  BEEP 1000,20: PAUSE
+1769  GO TO 1734
+1799 END DEFine 
+1800 DEFine PROCedure stellen
+1802  sichern: CSIZE 0,0: pos_y=pos_y-30
+1810  pen 0: bl 57,42,84,94: pen 7: bl 55,40,85,95: SET 1,adr1
+1812  OVER -1: INK 7: AT 10,15: PRINT "SCHRIFT": AT 12,15: PRINT "MUSTER": LOCK
+1814  sm=1: ys=0: pen 5: bl 55,15,85,97
+1818  REPeat af
+1820   k1=KEYROW(1)
+1822   IF k1=4 OR k1=128 THEN ys=1: sm=sm+(k1=128)-(k1=4)
+1824   IF sm<1 THEN sm=1: ys=0
+1826   IF sm>2 THEN sm=2: ys=0
+1828   IF ys=1 THEN bl 55,15,85,97: bl 55,15,85,116: ys=0
+1830   IF k1=64 THEN IF sm=1 THEN set_s1: ELSE set_m
+1839  END REPeat af
+1899 END DEFine 
+1900 DEFine PROCedure set_s1
+1902  OVER 0
+1910  pen 0: bl 49,42,83,84: pen 7: bl 47,40,84,85: SET 1,adr1
+1912  OVER -1: INK 7: AT 9,15: PRINT "GR¤œE": AT 11,16: PRINT "ART": LOCK
+1914  sm=1: ys=0: pen 5: bl 47,15,84,87
+1918  REPeat af
+1920   k1=KEYROW(1)
+1922   IF k1=4 OR k1=128 THEN ys=1: sm=sm+(k1=128)-(k1=4)
+1924   IF sm<1 THEN sm=1: ys=0
+1926   IF sm>2 THEN sm=2: ys=0
+1928   IF ys=1 THEN bl 47,15,84,87: bl 47,15,84,106: ys=0
+1930   IF k1=64 THEN IF sm=1 THEN set_g: ELSE set_a
+1939  END REPeat af
+1999 END DEFine 
+2000 DEFine PROCedure set_g
+2002  OVER 0
+2010  pen 0: bl 32,27,89,94: pen 7: bl 30,25,90,95: SET 1,adr1
+2012  OVER -1: INK 7: CSIZE 2,0: CURSOR 190,100: PRINT "1": CSIZE 2,1: CURSOR 210,100: PRINT "2": LOCK
+2014  sm=1: ys=0: pen 5: bl 15,25,90,95
+2018  REPeat af
+2020   k1=KEYROW(1)
+2022   IF k1=2 OR k1=16 THEN ys=1: sm=sm+(k1=16)-(k1=2)
+2024   IF sm<1 THEN sm=1: ys=0
+2026   IF sm>2 THEN sm=2: ys=0
+2028   IF ys=1 THEN bl 15,25,90,95: bl 15,25,105,95: ys=0
+2030   IF k1=64 THEN IF sm=1 THEN csh=0: csb=2: cshp=10: csbp=12: EXIT af: ELSE csh=1: csb=2: cshp=20: csbp=16: EXIT af
+2039  END REPeat af
+2090  OVER 0: INK in: pen in: laden
+2092  abfrage: steuerung
+2099 END DEFine 
+2100 DEFine PROCedure set_a
+2102  OVER 0
+2110  pen 0: bl 47,82,69,94: pen 7: bl 45,80,70,95: SET 1,44508
+2112  OVER -1: INK 7: CSIZE 2,0: AT 10,12: PRINT "Normal": SET 1,adr1: AT 12,12: PRINT "Future": SET 1,adr2: AT 14,12: PRINT "Old": SET 1,adr3: AT 16,12: PRINT "Script": LOCK
+2114  sm=1: ys=0: pen 5: bl 45,15,70,97
+2118  REPeat af
+2120   k1=KEYROW(1)
+2122   IF k1=4 OR k1=128 THEN selonsm: ys=1: sm=sm+(k1=128)-(k1=4)
+2124   IF sm<1 THEN sm=1: ys=0: selonsm
+2126   IF sm>4 THEN sm=4: ys=0: selonsm
+2128   IF ys=1 THEN selonsm: ys=0
+2130   IF k1=64 THEN EXIT af
+2139  END REPeat af
+2150  SELect ON sm
+2152   =1: ars=1
+2154   =2: ars=2
+2156   =3: ars=3
+2158   =4: ars=4
+2159  END SELect 
+2190  OVER 0: INK in: pen in: laden
+2192  abfrage: steuerung
+2199 END DEFine 
+2200 DEFine PROCedure set_m
+2202  mst=1: xo=pos_x: yo=pos_y: io=in
+2210  OVER 0: pen 0: bl 136,16,28,99: pen 7: bl 134,14,29,100: in=1
+2212  pos_y=152: FOR muster=1 TO 13: pos_x=muster*10+22: selonm: END FOR muster
+2214  pos_x=xo: pos_y=yo: in=io
+2218  OVER -1: kasten2 (mst*20+40)
+2220  REPeat af
+2224   k1=KEYROW(1)
+2230   IF k1<>0 THEN kasten2 (mst*20+40)
+2234   IF k1&&2 THEN mst=mst-1
+2236   IF k1&&16 THEN mst=mst+1
+2238   IF k1&&64 THEN EXIT af
+2240   IF mst<1 THEN mst=1
+2242   IF mst>13 THEN mst=13
+2256   IF k1<>0 THEN kasten2 (mst*20+40)
+2258  END REPeat af
+2260  muster=mst: INK in: pen in: OVER 0: laden
+2262  abfrage: steuerung
+2264 END DEFine 
+2280 DEFine PROCedure kasten2 (cr)
+2284  BLOCK 18,10,cr,102,7
+2288 END DEFine 
+2300 DEFine PROCedure colors
+2302  sichern: CSIZE 0,0: pos_y=pos_y-30
+2310  pen 0: bl 57,42,84,94: pen 7: bl 55,40,85,95: SET 1,adr1
+2312  OVER -1: INK 7: AT 10,15: PRINT "INK": AT 12,15: PRINT "PAPER": LOCK
+2314  sm=1: ys=0: pen 5: bl 55,15,85,97
+2318  REPeat af
+2320   k1=KEYROW(1)
+2322   IF k1=4 OR k1=128 THEN ys=1: sm=sm+(k1=128)-(k1=4)
+2324   IF sm<1 THEN sm=1: ys=0
+2326   IF sm>2 THEN sm=2: ys=0
+2328   IF ys=1 THEN bl 55,15,85,97: bl 55,15,85,116: ys=0
+2330   IF k1=64 THEN EXIT af
+2339  END REPeat af
+2350  IF sm=1 THEN in=new_color: ELSE pap=new_color: PAPER#2,pap: CLS#2: SCR_SAVE scr2: SCR_SAVE scr2+5120
+2390  OVER 0: INK in: pen in: laden
+2392  abfrage: steuerung
+2399 END DEFine 
+2400 DEFine FuNction new_color
+2402  color=0
+2410  OVER 0: pen 0: bl 149,16,50,99: pen 7: bl 147,14,51,100
+2414  FOR fb=0 TO 7: pen 0: bl 14,10,54+fb*18,102: pen fb: bl 12,8,55+fb*18,103: END FOR fb
+2416  OVER -1: ys=0: kasten (53.5+color*18)*2
+2420  REPeat af
+2424   k1=KEYROW(1)
+2430   IF k1<>0 THEN kasten (53.5+color*18)*2
+2434   IF k1&&2 THEN color=color-1
+2436   IF k1&&16 THEN color=color+1
+2438   IF k1&&64 THEN EXIT af
+2450   IF color<0 THEN color=0
+2452   IF color>7 THEN color=7
+2456   IF k1<>0 THEN kasten (53.5+color*18)*2
+2458  END REPeat af
+2490  RETurn color
+2499 END DEFine 
+2500 DEFine PROCedure kasten (crd)
+2502  BLOCK 28,1,crd,102,0,7: BLOCK 28,1,crd,111,0,7
+2504  BLOCK 2,10,crd,102,0,7: BLOCK 2,10,crd+24,102,0,7
+2506 END DEFine 
+2600 DEFine PROCedure file
+2602  sichern: CSIZE 0,0: pos_y=pos_y-50
+2610  pen 0: bl 57,42,84,94: pen 7: bl 55,40,85,95: SET 1,adr1
+2612  OVER -1: INK 7: AT 10,15: PRINT "SAVE": AT 12,15: PRINT "LOAD": LOCK
+2614  sm=1: ys=0: pen 5: bl 55,15,85,97
+2618  REPeat af
+2620   k1=KEYROW(1)
+2622   IF k1=4 OR k1=128 THEN ys=1: sm=sm+(k1=128)-(k1=4)
+2624   IF sm<1 THEN sm=1: ys=0
+2626   IF sm>2 THEN sm=2: ys=0
+2628   IF ys=1 THEN bl 55,15,85,97: bl 55,15,85,116: ys=0
+2630   IF k1=64 THEN EXIT af
+2639  END REPeat af
+2648  IF sm=1 THEN fprg$=prog$("SAVE: "): ELSE fprg$=prog$("LOAD: ")
+2650  IF sm=1 THEN DELETE fprg$: SBYTES fprg$,scr2,32768: ELSE LBYTES fprg$,scr2: dbsh: sh„he=0: bsh: laden
+2690  OVER 0: INK in: pen in: laden
+2692  abfrage: steuerung
+2699 END DEFine 
+2700 DEFine FuNction prog$ (los$)
+2702  pgn$="fdk1_Test_pic"
+2710  OVER 0: pen 0: bl 236,16,10,97: pen 7: bl 234,14,11,98
+2718  INK 0: PAPER 7: SET 1,adr1
+2720  AT 10,2: PRINT los$;: SET 1,adr3: INPUT pgn$: LOCK
+2722  PAPER pap: RETurn pgn$
+2729 END DEFine 
+3000 DEFine PROCedure kreis (flt,aos)
+3002  art=6: fll=flt
+3010  REPeat wieder
+3012   selon
+3014   REPeat warten
+3016    IF KEYROW(1)>0 THEN selon: EXIT warten
+3018   END REPeat warten
+3020   steu2
+3026    IF k1=64 THEN EXIT wieder
+3028    IF k1=8 THEN GO TO 3010
+3029  END REPeat wieder
+3030  IF pos_y>215 THEN abfrage: steuerung
+3032  x1=176*(pos_x+3)/255: y1=100*(pos_y-3)/216: BEEP 1000,20
+3034  INK#2,7-pap
+3040  REPeat wieder2
+3042   selon: OVER#2,-1: CIRCLE#2,x1,y1,SQRT(((176*(pos_x+3)/255)-x1)^2+((100*(pos_y-3)/216)-y1)^2): OVER#2,0
+3044   REPeat warten2
+3046    IF KEYROW(1)>0 THEN OVER#2,-1: CIRCLE#2,x1,y1,SQRT(((176*(pos_x+3)/255)-x1)^2+((100*(pos_y-3)/216)-y1)^2): OVER#2,0: selon: EXIT warten2
+3048   END REPeat warten2
+3050   steu2
+3052   IF KEYROW(1)=64 THEN EXIT wieder2
+3054  END REPeat wieder2
+3056  IF pos_y>215 THEN abfrage: steuerung
+3058  kexz=1: kwin=2*PI: IF aos THEN BEEP 1000,20: ell
+3060  INK#2,in: FILL#2,fll: ELLIPSE#2,x1,y1,SQRT(((176*(pos_x+3)/255)-x1)^2+((100*(pos_y-3)/216)-y1)^2),kexz,kwin: FILL#2,0
+3062  BEEP 1000,20: PAUSE
+3069  GO TO 3010
+3099 END DEFine 
+3100 DEFine PROCedure vier (flt)
+3102  art=6: fll=flt
+3104  FOR nfp=1 TO 4: xfp(nfp)=0: yfp(nfp)=0: END FOR nfp
+3106  FOR nof=1 TO 4
+3110   REPeat wieder
+3112    selon
+3114    REPeat warten
+3116     IF KEYROW(1)>0 THEN selon: EXIT warten
+3118    END REPeat warten
+3120    steu2
+3122    IF k1=64 THEN EXIT wieder
+3124    IF k1=8 THEN GO TO 3110
+3129   END REPeat wieder
+3134   xfp(nof)=176*(pos_x+3)/255: yfp(nof)=100*(pos_y-3)/216
+3136   IF nof<4 THEN OVER#2,-1: INK#2,7-pap: POINT#2,xfp(nof),yfp(nof): OVER#2,0: BEEP 1000,20
+3139  END FOR nof
+3142  INK#2,7-pap: OVER#2,-1: FOR nfp=1 TO 3: POINT#2,xfp(nfp),yfp(nfp): END FOR nfp: OVER#2,0
+3150  IF pos_y>215 THEN abfrage: steuerung
+3154  INK#2,in: FILL#2,fll
+3156  LINE#2,xfp(1),yfp(1) TO xfp(2),yfp(2) TO xfp(3),yfp(3) TO xfp(4),yfp(4) TO xfp(1),yfp(1)
+3158  FILL#2,0
+3170  BEEP 1000,20: PAUSE: GO TO 3010
+3199 END DEFine 
+3200 DEFine PROCedure ell
+3210  REPeat ellw
+3212   INK#2,7-pap: OVER#2,-1: CIRCLE#2,x1,y1,SQRT(((176*(pos_x+3)/255)-x1)^2+((100*(pos_y-3)/216)-y1)^2),kexz,kwin: OVER#2,0
+3214   REPeat warten
+3216    IF KEYROW(1)>0 THEN EXIT warten
+3218   END REPeat warten
+3230   INK#2,7-pap: OVER#2,-1: CIRCLE#2,x1,y1,SQRT(((176*(pos_x+3)/255)-x1)^2+((100*(pos_y-3)/216)-y1)^2),kexz,kwin: OVER#2,0
+3240   steu2
+3242   IF k1&&2 THEN kexz=kexz+.1
+3244   IF k1&&16 THEN kexz=kexz-.1
+3246   IF k1&&4 THEN kwin=kwin+.1
+3248   IF k1&&128 THEN kwin=kwin-.1
+3254   IF k1&&64 THEN EXIT ellw
+3262  END REPeat ellw
+3299 END DEFine 
+30000 DEFine PROCedure haco
+30002  PRINT #3;CHR$(27)&"A"&CHR$(8);
+30004  FOR spalte=0 TO 127 STEP 2
+30006   PRINT #3;CHR$(27)&"L"&CHR$(0)&CHR$(2);
+30008   FOR speicher=32640 TO 0 STEP -128
+30010    FOR ml=0 TO 1
+30012     PRINT #3;CHR$((PEEK(scr2+speicher+spalte))||(PEEK(scr2+speicher+spalte+1)));
+30014    END FOR ml
+30016   END FOR speicher
+30018   PRINT #3;CHR$(10);
+30020  END FOR spalte
+30022  fi 1: icf(1)=0
+30024 END DEFine 
+30050 DEFine PROCedure fi (zahl)
+30052  pen 7: OVER -1
+30054  SELect ON zahl
+30056   =1: bl 29,19,2,1
+30057   =2: bl 25,19,31,1
+30058   =3: bl 25,19,56,1
+30059   =4: bl 25,19,81,1
+30060   =5: bl 25,19,106,1
+30061   =6: bl 25,19,131,1
+30062   =7: bl 25,19,156,1
+30063   =8: bl 25,19,181,1
+30064   =9: bl 25,19,206,1
+30065   =10: bl 26,19,231,1
+30066   =12: bl 25,18,31,21
+30067   =13: bl 25,18,56,21
+30068   =14: bl 25,18,81,21
+30069   =15: bl 25,18,106,21
+30070   =16: bl 25,18,131,21
+30071   =17: bl 25,18,156,21
+30072   =18: bl 25,18,181,21
+30073   =19: bl 25,18,206,21
+30074   =20: bl 26,18,231,21
+30079  END SELect 
+30090  OVER 0
+30099 END DEFine 
+30100 DEFine PROCedure pfeil
+30102  rfb
+30104  gbl 5,4,pos_x,pos_y: gpl pos_x+4,pos_y
+30106  gpl pos_x,pos_y-4: gpl pos_x+4,pos_y-3
+30108  gbl 4,1,pos_x+3,pos_y-4: gpl pos_x+4,pos_y-5
+30112  OVER 0: pen in
+30119 END DEFine 
+30120 DEFine PROCedure zeichen
+30122  rfb
+30124  gbl 9,1,pos_x,pos_y: gbl 9,1,pos_x,pos_y-7
+30126  gbl 3,6,pos_x+3,pos_y-1
+30136  OVER 0: pen in
+30139 END DEFine 
+30140 DEFine PROCedure punkt
+30142  rfb
+30144  gbl 10,1,pos_x,pos_y: gbl 10,1,pos_x,pos_y-8
+30146  gpl pos_x,pos_y-1: gpl pos_x,pos_y-7
+30148  gpl pos_x+8,pos_y-1: gpl pos_x+8,pos_y-7
+30150  gpl pos_x+4,pos_y-4
+30156  OVER 0: pen in
+30159 END DEFine 
+30160 DEFine PROCedure pinsel
+30162  rfb
+30164  gbl 1,5,pos_x+3,pos_y: gbl 8,1,pos_x,pos_y-5
+30166  gbl 1,2,pos_x,pos_y-6: gbl 1,2,pos_x+2,pos_y-6
+30168  gbl 1,2,pos_x+4,pos_y-6: gbl 1,2,pos_x+6,pos_y-6
+30176  OVER 0: pen in
+30179 END DEFine 
+30180 DEFine PROCedure dose
+30182  rfb
+30184  gbl 7,5,pos_x,pos_y-3: gbl 3,3,pos_x+2,pos_y
+30186  gpl pos_x+4,pos_y-2
+30196  OVER 0: pen in
+30199 END DEFine 
+30200 DEFine PROCedure curs
+30202  rfb
+30204  gbl 10,1,pos_x,pos_y: gbl 10,1,pos_x,pos_y-8
+30206  gbl 1,7,pos_x,pos_y-1: gbl 1,7,pos_x+8,pos_y-1
+30208  gpl pos_x+4,pos_y-4
+30216  OVER 0: pen in
+30219 END DEFine 
+30300 DEFine PROCedure rfb
+30304  IF pap<4 THEN pen 7-pap: ELSE pen pap
+30306  OVER -1
+30308 END DEFine 
+32000 DEFine PROCedure icons
+32002  pen 0: bl 256,40,0,0
+32008  pen 7
+32010  bl 256,1,0,0: bl 256,1,0,20: bl 256,1,0,39
+32012  bl 1,40,0,0: bl 1,40,30,0: bl 1,40,55,0: bl 1,40,80,0: bl 1,40,105,0: bl 1,40,130,0: bl 1,40,155,0: bl 1,40,180,0: bl 1,40,205,0: bl 1,40,230,0: bl 1,40,256,0
+32014  bl 20,1,0,30: bl 1,20,19,20
+32016  pen 6: FOR a=1 TO 36: READ x,y: pl x,y: END FOR a
+32018  pen 2: bl 25,1,3,13: bl 25,1,3,17: bl 1,5,3,13: bl 1,5,27,13
+32020  pen 4: pl 21,15: pl 22,15: pl 24,15: pl 25,15
+32022  pen 6: bl 22,1,4,4: bl 1,2,5,5: bl 1,4,6,7: bl 1,2,5,11: bl 1,2,25,5: bl 1,4,26,7: bl 1,2,25,11
+32024  pl 7,5: pl 8,7: pl 8,9: pl 7,11: pl 23,5: pl 24,7: pl 24,9: pl 23,11
+32026  pen 3: bl 14,14,36,4
+32028  pen 1: bl 3,2,42,10: bl 3,4,42,13
+32030  pen 1: bl 3,5,34,23: bl 5,3,33,24
+32032  pen 2: bl 3,5,42,23: bl 5,3,41,24
+32034  pen 3: bl 3,5,50,23: bl 5,3,49,24
+32036  pen 4: bl 3,5,33,31: bl 5,3,32,32
+32038  pen 5: bl 3,5,41,31: bl 5,3,40,32
+32040  pen 6: bl 3,5,49,31: bl 5,3,48,32
+32042  pen 3: bl 1,5,67,14: bl 1,5,69,14: pl 68,14: pl 68,16: bl 1,5,71,14: pl 72,14: pl 72,16: pl 72,18: pl 73,15: pl 73,17: bl 1,5,75,14: bl 2,1,76,14: bl 2,1,76,18
+32044  stift 59,6
+32046  pen 3: pl 64,36: pl 66,37: pl 67,35: pl 69,36: pl 70,34: pl 72,37: pl 73,34: pl 74,36: pl 76,33: pl 76,37: pl 77,35
+32048  stift 59,24
+32050  pen 5: bl 3,7,90,4: pen 2: bl 8,1,88,11: bl 1,4,88,12: bl 1,4,90,12: bl 1,4,92,12: bl 1,4,94,12
+32052  pen 4: bl 1,2,89,14: bl 1,3,91,13: bl 1,4,93,12
+32054  bl 6,4,95,12: bl 3,4,100,14: pl 100,13: pl 99,16: bl 11,1,89,16
+32056  pen 3: bl 9,8,86,29: bl 4,4,89,25: pl 92,28
+32058  pen 5: RESTORE 32108: FOR d=1 TO 18: READ x,y: pl x-1,y: END FOR d
+32060  pen 6: bl 10,1,112,5: bl 10,1,112,14: bl 1,10,112,5: bl 1,10,121,5: bl 11,10,112,25
+32062  pen 4: bl 7,1,139,4: bl 7,1,139,17: bl 1,6,135,8: bl 1,6,148,8
+32064  pl 136,7: pl 137,6: pl 138,5: pl 136,14: pl 137,15: pl 138,16: pl 145,5: pl 146,6: pl 147,7: pl 145,16: pl 146,15: pl 147,14
+32066  bl 7,14,139,23: bl 15,6,135,27
+32068  bl 13,1,136,26: bl 11,1,137,25: bl 9,1,138,24
+32070  bl 13,1,136,33: bl 11,1,137,34: bl 9,1,138,35
+32072  pen 5: FOR e=1 TO 32: READ x,y: pl x,y: END FOR e
+32074  FOR f=161 TO 175: READ anf,lge: bl 1,lge,f,anf: END FOR f
+32076  pen 6: bl 11,1,187,5: bl 16,1,185,14: bl 1,4,186,6: bl 1,4,185,10: bl 1,3,197,6: bl 1,3,198,9: bl 1,2,199,12
+32078  bl 11,10,187,25: bl 1,9,186,26: bl 1,5,185,30: bl 1,9,197,26: bl 1,6,198,29: bl 1,3,199,32
+32080  pen 5: FOR g=14 TO 6 STEP -1: READ anf,lge: bl lge+1,1,anf,g: END FOR g
+32082  FOR h=1 TO 19: READ x,y: pl x,y: END FOR h
+32084  pen 5: pl 242,9: pl 243,8: pl 244,7: pl 245,6: pl 246,5: pl 247,4: pl 247,3
+32086  pen 4: pl 242,10: pl 243,10: pl 244,10: pl 245,11: pl 246,11: pl 247,11
+32088  pen 3: pl 242,11: pl 243,12: pl 244,13: pl 245,14: pl 246,15: pl 246,16
+32090  pen 4: pl 235,16: pl 236,15: pl 237,14: pl 238,13: pl 239,12: pl 240,11: pl 241,10
+32092  pen 5: pl 235,8: pl 236,8: pl 237,9: pl 238,9: pl 239,9: pl 240,10
+32094  pen 6: pl 240,9: pl 240,8: pl 240,7: pl 240,6: pl 240,5: pl 240,4
+32096  pen 5: bl 1,6,233,24: bl 1,6,237,24: bl 5,1,233,24: bl 5,1,233,27
+32098  pen 3: bl 1,5,240,22: bl 1,5,242,22: pl 241,22: pl 241,24
+32100  pen 4: he=33: FOR i=236 TO 249 STEP 2: bl 3,1,i,he: he=he-1: END FOR i
+32102  pen 2: bl 4,3,239,35: bl 5,3,242,34: bl 6,3,246,33
+32104  DATA 6,26,7,25,8,24,8,25,8,26,8,27,8,28,8,29,9,23,10,22,11,23,12,24,12,25,12,26,12,27,12,28,12,29,13,25,14,26
+32106  DATA 6,33,7,34,8,35,8,34,8,33,8,32,8,31,9,36,10,37,11,36,12,35,12,34,12,33,12,32,12,31,13,34,14,33
+32108  DATA 94,25,96,24,96,26,97,29,98,23,98,25,98,27,99,30,100,22,100,25,100,28,100,31,101,30,102,22,102,24,102,27,102,32,103,30
+32110  DATA 161,6,161,7,162,5,162,8,162,9,163,4,163,10,164,4,164,11,165,4,165,12,166,5,166,13,167,5,167,14,168,6,168,14,169,6,169,15,170,7,170,15,171,8,171,16,172,9,172,16,173,10,173,16,174,11,174,12,174,15,175,13,175,14
+32112  DATA 26,2,25,5,24,7,24,8,24,9,25,9,25,10,26,9,26,10,27,9,28,9,29,8,30,7,31,5,33,2
+32114  DATA 208,2,210,2,212,2,214,3,217,3,220,2,222,2,224,2,226,2
+32116  DATA 210,26,211,27,211,28,212,29,212,30,213,31,214,32,215,32,216,32,217,32,218,32,219,32,220,32,221,31,222,30,223,30,224,29,225,28,226,27
+32118 END DEFine 
+32120 DEFine PROCedure stift (xx,yy)
+32122  RESTORE 32140: pen 6
+32124  FOR b=1 TO 19
+32126   READ x,y: pl x+xx-1,y+yy-1
+32128  END FOR b
+32130  pen 4
+32132  FOR c=1 TO 15
+32134   READ x,y: pl x+xx,y+yy-1
+32136  END FOR c
+32138 END DEFine 
+32140 DATA 0,11,0,12,1,8,1,9,1,10,1,11,2,7,2,10,3,6,3,10,4,6,4,10,5,6,5,10,6,6,6,7,6,9,7,8,7,9
+32142 DATA 5,6,6,5,7,4,7,7,8,3,8,6,9,2,9,5,10,1,10,4,11,0,11,3,12,0,12,2,13,1
+32144 DEFine PROCedure bl (b,h,xx,yy)
+32146  BLOCK b*2-(1 AND b*2>2),h,xx*2-(1 AND xx*2>0),yy,farbe
+32148 END DEFine 
+32150 DEFine PROCedure pen (tinte)
+32152  farbe=tinte
+32154 END DEFine 
+32156 DEFine PROCedure pl (xx,yy)
+32158  BLOCK 2,1,xx*2-(1 AND xx*2>0),yy,farbe
+32160 END DEFine 
+32162 DEFine PROCedure SA
+32164  DELETE "fdk1_Paint"&CHR$(18)&"Shop"&CHR$(1)&" ": SAVE "fdk1_Paint"&CHR$(18)&"Shop"&CHR$(1)&" ": DIR fdk1_
+32166 END DEFine 
+32170 DEFine PROCedure gbl (b,h,xx,yy)
+32172  BLOCK 2*b-(1 AND b*2>2),h,xx*2-(1 AND xx*2>0),255-yy,farbe
+32174 END DEFine 
+32176 DEFine PROCedure gpl (xx,yy)
+32178  BLOCK 2,1,xx*2-(1 AND xx*2>0),255-yy,farbe
+32180 END DEFine 
+32182 DEFine PROCedure bsh
+32184  pen 5: bl 11,8,20,21+sh„he
+32186 END DEFine 
+32188 DEFine PROCedure dbsh
+32190  pen 0: bl 11,8,20,21+sh„he
+32192 END DEFine 
+32200 DEFine PROCedure steu2
+32202  k1=KEYROW(1): k7=KEYROW(7)
+32204  pm=1
+32206  IF k7&&2 THEN pm=10
+32208  IF k7&&4 THEN pm=20
+32214  IF k1&&2 THEN pos_x=pos_x-pm
+32216  IF k1&&16 THEN pos_x=pos_x+pm
+32218  IF k1&&4 THEN pos_y=pos_y+pm
+32220  IF k1&&128 THEN pos_y=pos_y-pm
+32222  IF pos_x>248 THEN pos_x=248
+32224  IF pos_x<0 THEN pos_x=0
+32226  IF pos_y>255 THEN pos_y=255
+32228  IF pos_y<8 THEN pos_y=8
+32230 END DEFine 
+32232 DEFine PROCedure bell
+32234  BEEP 10000,5,18695,4,6,0,5,0
+32236 END DEFine 
+32238 DEFine PROCedure selonm
+32240  x=pos_x: y=pos_y: pen in
+32242  SELect ON muster
+32244   =1: gpl x+1,y-1: gpl x+5,y-1: gpl x+1,y-5: gpl x+5,y-5
+32246   =2: gbl 1,5,x+3,y-1
+32248   =3: gbl 6,1,x+1,y-3
+32250   =4: gpl x+1,y-1: gpl x+2,y-2: gpl x+3,y-3: gpl x+4,y-4: gpl x+5,y-5
+32252   =5: gpl x+5,y-1: gpl x+4,y-2: gpl x+3,y-3: gpl x+2,y-4: gpl x+1,y-5
+32254   =6: gbl 1,5,x+1,y-1: gbl 1,5,x+5,y-1
+32256   =7: gpl x+3,y-3
+32258   =8: gbl 4,3,x+2,y-2
+32260   =9: gbl 1,3,x+3,y-2: gbl 4,1,x+2,y-3
+32262   =10: gbl 4,5,x+2,y-1: gbl 6,3,x+1,y-2
+32264   =11: gbl 1,5,x+3,y-1: gbl 6,1,x+1,y-3
+32266   =12: gpl x+2,y-2: gpl x+3,y-3: gpl x+4,y-4
+32268   =13: gpl x+4,y-2: gpl x+3,y-3: gpl x+2,y-4
+32270  END SELect 
+32274 END DEFine 
+32276 DEFine PROCedure SET (num,stelle)
+32278  IF NOT num INSTR "012" THEN END DEFine 
+32280  POKE_L (PEEK_L(PEEK_L(163960)+num*4)+42),stelle
+32284 END DEFine 
+32286 DEFine PROCedure LOCK
+32288  SET 0,98304: SET 1,98304: SET 2,98304
+32290 END DEFine 
+32292 DEFine PROCedure UNLOCK
+32294  SET 0,44508: SET 1,44508: SET 2,44508
+32296 END DEFine 
+32300 DEFine PROCedure selons
+32302  SELect ON ars
+32304   =1: SET 2,44508
+32306   =2: SET 2,adr1
+32308   =3: SET 2,adr2
+32310   =4: SET 2,adr3
+32312  END SELect 
+32314 END DEFine 
+32316 DEFine PROCedure selonsm
+32318  OVER -1: pen 5
+32320  SELect ON sm
+32322   =1: bl 45,15,70,97
+32324   =2: bl 45,15,70,116
+32326   =3: bl 45,15,70,136
+32328   =4: bl 45,15,70,156
+32330  END SELect 
+32332 END DEFine 
+32334 DEFine PROCedure sichern
+32336  SCR_SAVE scr2+sh„he*512
+32338 END DEFine 
+32340 DEFine PROCedure laden
+32342  SCR_LOAD scr2+sh„he*512
+32344 END DEFine 
+32346 DEFine PROCedure bscroll
+32348  sichern: dbsh
+32350  IF pos_y>216 AND pos_y<225 THEN sh„he=sh„he+5: ELSE IF pos_y>225 THEN sh„he=sh„he-5
+32352  IF sh„he<0 THEN sh„he=0
+32354  IF sh„he>10 THEN sh„he=10
+32356  bsh: laden
+32358 END DEFine 
+32400 DEFine PROCedure tasten
+32402  IF NOT (KEYROW(7)&&2) THEN END DEFine 
+32404  IF KEYROW(6)&&8 THEN RESET
+32406  IF KEYROW(6)&&128 THEN laden: selon
+32408  IF KEYROW(3)&&8 THEN selon: sichern: selon
+32418 END DEFine 

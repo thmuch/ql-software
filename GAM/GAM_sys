@@ -1,0 +1,242 @@
+100 REMark * * * * * * * * * * * *
+102 REMark *     QL GAM V2.3     *
+104 REMark * (c) 1987 Much Soft  *
+106 REMark * * * * * * * * * * * *
+108 GAM_INIT: MOUSE_INIT 0: note$="Hello."
+110 TLINE "  Desk     File     Options     Adjust"
+112 show_icons
+114 x(1)=18: y(1)=64: x(2)=30: y(2)=124: x(4)=246: y(4)=54: x(5)=6: y(5)=234
+116 x(6)=228: y(6)=234: x(7)=222: y(7)=174: x(8)=246: y(8)=144: x(9)=396: y(9)=44: x(10)=234: y(10)=104: x(26)=18: y(26)=204
+118 MOUSE 1,0,72,my,mx
+120 check_icons
+122 IF my<>0 THEN CHECK 4,12,0,72,my,mx: abfrage: GO TO 118
+124 IF mx>0 AND mx<6 THEN desk
+126 IF mx>9 AND mx<15 THEN File
+128 IF mx>18 AND mx<27 THEN Options
+130 IF mx>30 AND mx<38 THEN adjust
+132 GO TO 118
+134 DEFine PROCedure check_icons
+136  IF my=23 OR my=24 THEN IF mx>15 AND mx<22 THEN REPAIR_WIND: abfrage
+138  IF my=23 OR my=24 THEN IF mx>8 AND mx<15 THEN COPY device$&file$ TO ser1
+140  IF my=23 OR my=24 THEN IF mx>1 AND mx<7 THEN DELETE device$&file$
+142  IF my=23 OR my=24 THEN IF mx>23 AND mx<29 THEN show_icons
+144  IF mx>77 AND mx<84 THEN IF my=1 OR my=2 THEN info$(7,1 TO 5)="mdv1_": DIR_WIND x(26),y(26),"mdv1_": abfrage
+146  IF mx>77 AND mx<84 THEN IF my=3 OR my=4 THEN info$(7,1 TO 5)="mdv2_": DIR_WIND x(26),y(26),"mdv2_": abfrage
+148  IF mx>77 AND mx<84 THEN IF my=5 OR my=6 THEN info$(7,1 TO 5)="fdk1_": DIR_WIND x(26),y(26),"fdk1_": abfrage
+150  IF mx>77 AND mx<84 THEN IF my=7 OR my=8 THEN info$(7,1 TO 5)="fdk2_": DIR_WIND x(26),y(26),"fdk2_": abfrage
+152 END DEFine 
+154 DEFine PROCedure desk
+156  COM_BOX 1,2,"Info/Version/Quit/Hardcopy",4
+158  REPAIR_WIND: abfrage
+160  SELect ON number
+162   =0: GO TO 118
+164   =1: IF NOT scn(1) THEN OPEN_WIND 1,x(1),y(1),200,30,"G: Info","QL Version : "&VER$,2,7: cw(1)=2: abfrage
+166   =2: IF NOT scn(2) THEN OPEN_WIND 2,x(2),y(2),150,50,"G: Version","QL GAM",4,7: cw(2)=2: abfrage
+168   =3: ALERT 100,200,3,"/     Do You Really/     Want to QUIT ???","   Yes/   No",2: abfrage: IF num_but=1 THEN QUIT
+170   =4: HARDCOPY
+172  END SELect 
+174  MOUSE 4,0,72,my,mx
+176  FOR wd=1 TO 12
+178   CHECK_WIND wd
+180   IF cw(wd)=0 THEN GO TO 118
+182   abfrage
+184  END FOR wd
+186  GO TO 118
+188 END DEFine 
+190 DEFine PROCedure File
+192  COM_BOX 1,11,"Info/View/Format/Exec/Load/Merge/Copy/AutoRun",4
+194  REPAIR_WIND: abfrage
+196  SELect ON number
+198   =0: GO TO 118
+200   =1: IF NOT scn(7) THEN OPEN_WIND 7,x(7),y(7),244,50,"F: Info",device$,4,7: cw(7)=2: abfrage
+202   =2: IF NOT scn(8) THEN OPEN_WIND 8,x(8),y(8),256,120,"F: View","ViewFile",0,7: cw(8)=2: abfrage: view: ELSE IF scn(8) THEN view
+204   =3: IF NOT scn(9) THEN OPEN_WIND 9,x(9),y(9),100,40,"F: Format","Format",0,7: cw(9)=2: fformat: ELSE IF scn(9) THEN fformat
+206   =4: EXEC device$&file$
+208   =5: LOAD device$&file$
+210   =6: MERGE device$&file$
+212   =7: IF NOT scn(10) THEN OPEN_WIND 10,x(10),y(10),256,40,"F: Copy","CopyFile",7,0: cw(10)=2: abfrage: fcopy: ELSE IF scn(10) THEN fcopy
+214   =8: autorun
+216  END SELect 
+218  MOUSE 4,0,72,my,mx
+220  FOR wd=1 TO 12
+222   CHECK_WIND wd
+224   IF cw(wd)=0 THEN GO TO 118
+226   abfrage
+228  END FOR wd
+230  GO TO 118
+232 END DEFine 
+234 DEFine PROCedure view
+236  MOUSE 3,0,72,my,mx
+238  wy=WPY(8)+1: wx=WPX(8)
+240  IF my=wy THEN IF mx>wx+15 AND mx<wx+25 THEN COPY device$&file$ TO "scr_"&b(8)&"X"&(h(8)-20)&"a"&x(8)&"X"&(275-y(8))
+242 END DEFine 
+244 DEFine PROCedure info
+246  PRINT#11;"   Full Name:": PRINT#11;file$
+248  PRINT#11;"   Type: ";
+250  ext$=""
+252  FOR stl=1 TO LEN(file$)
+254   IF file$(stl)="_" THEN ext$="": GO TO 258
+256   ext$=ext$&file$(stl)
+258  END FOR stl
+260  ant$="???"
+262  IF ext$=="BAS" THEN ant$="BASIC"
+264  IF ext$=="DOC" THEN ant$="DATA of QUILL"
+266  IF ext$=="GRF" THEN ant$="DATA of EASEL"
+268  IF ext$=="ABA" THEN ant$="DATA of ABACUS"
+270  IF ext$=="DBF" THEN ant$="DATA of ARCHIVE"
+272  IF ext$=="CDE" THEN ant$="MCODE"
+274  IF ext$=="PIC" OR ext$=="SCR" THEN ant$="SCREEN/PICTURE"
+276  IF ext$=="EXE" THEN ant$="JOB"
+278  IF ext$=="PAS" THEN ant$="PRG of PASCAL"
+280  IF ext$=="BOOT" THEN ant$="BASIC/AUTORUN"
+282  IF ext$=="MSC" THEN ant$="PRG of MSPC"
+284  IF ext$=="SYS" THEN ant$="PRG of GAMBASIC"
+286  PRINT#11;ant$
+288 END DEFine 
+290 DEFine PROCedure fformat
+292  MOUSE 3,0,72,my,mx
+294  wy=WPY(9)+1: wx=WPX(9)
+296  IF my=wy THEN IF mx>wx+3 AND mx<wx+11 THEN PRINT#13;"Device_Filename:": INPUT#13;df$: FORMAT df$
+298 END DEFine 
+300 DEFine PROCedure fcopy
+302  MOUSE 3,0,72,my,mx
+304  wy=WPY(10)+1: wx=WPX(10)
+306  IF my=wy THEN IF mx>wx+15 AND mx<wx+25 THEN AT#14,1,0: INPUT#14;hin$: COPY device$&file$ TO hin$
+308 END DEFine 
+310 DEFine PROCedure autorun
+312  OPEN#4,device$&file$
+314  REPeat wrt
+316   IF EOF(#4) THEN EXIT wrt
+318   INPUT#4,dummy$
+320  END REPeat wrt
+322  PRINT#4;"RUN": CLOSE#4
+324 END DEFine 
+326 DEFine PROCedure Options
+328  COM_BOX 1,20,"NotePad/SaveNote/LoadNote/Calculator",7
+330  REPAIR_WIND: abfrage
+332  SELect ON number
+334   =0: GO TO 118
+336   =1: IF NOT scn(5) THEN OPEN_WIND 5,x(5),y(5),200,100,"O: NotePad","NewNote",2,7: cw(5)=2: abfrage: ck_note: ELSE IF scn(5) THEN ck_note
+338   =2: ALERT 100,200,1,"/     Save Note to/","  mdv1_/  fdk1_/  Cancel",3: abfrage: save_note
+340   =3: ALERT 100,200,2,"/     Load Note from/","  mdv1_/  fdk1_/  Cancel",3: abfrage: load_note
+342   =4: IF NOT scn(6) THEN OPEN_WIND 6,x(6),y(6),200,50,"O: Calculator","type 'ESC' to exit",7,0: ck_calc: ELSE IF scn(6) THEN ck_calc
+344  END SELect 
+346  MOUSE 4,0,72,my,mx
+348  FOR wd=1 TO 12
+350   CHECK_WIND wd
+352   IF cw(wd)=0 THEN GO TO 118
+354   abfrage
+356  END FOR wd
+358  GO TO 118
+360 END DEFine 
+362 DEFine PROCedure ck_date
+364  MOUSE 3,0,72,my,mx
+366  wy=WPY(4)+1: wx=WPX(4)
+368  IF my=wy THEN IF mx>wx+5 AND mx<wx+14 THEN CLS#8: INPUT#8;"Year ? ";yr: INPUT#8;"Month ? ";mt: INPUT#8;"Day ? ";dy: INPUT#8;"Hours ? ";hr: INPUT#8;"Minutes ? ";mn: INPUT#8;"Seconds ? ";se: SDATE yr,mt,dy,hr,mn,se: CLOSE_WIND 4
+370 END DEFine 
+372 DEFine PROCedure ck_note
+374  MOUSE 3,0,72,my,mx
+376  wy=WPY(5)+1: wx=WPX(5)
+378  IF my=wy THEN IF mx>wx+11 AND mx<wx+20 THEN CLS#9: INPUT#9;note$: CLOSE_WIND 5
+380 END DEFine 
+382 DEFine PROCedure ck_calc
+384  spr=0
+386  rech$="": INPUT#10;rech$
+388  IF rech$=="ESC" THEN END DEFine 
+390  z1$="": z2$="": rc$=""
+392  FOR sl=1 TO LEN(rech$)
+394   lr$=rech$(sl)
+396   IF z1$<>"" AND rc$="" THEN IF NOT lr$ INSTR "0123456789.PI" THEN rc$=lr$: spr=1
+398    IF rc$="#" THEN IF z1$>=0 THEN PRINT#10;SQRT(z1$): GO TO 386: ELSE IF z1$<0 THEN GO TO 426
+400    IF rc$="!" THEN IF z1$<=300 THEN PRINT#10;FACT(z1$): GO TO 386: ELSE IF z1$>300 THEN GO TO 426
+402    IF rc$="¶" THEN PRINT#10;1/z1$: GO TO 386
+404    IF spr THEN spr=0: GO TO 410
+406    IF lr$ INSTR "0123456789.PI-" THEN IF rc$="" THEN z1$=z1$&lr$: ELSE z2$=z2$&lr$
+408   ck_pi
+410  END FOR sl
+412  IF rc$="+" THEN PRINT#10;z1$+z2$: GO TO 386
+414  IF rc$="-" THEN PRINT#10;z1$-z2$: GO TO 386
+416  IF rc$="*" THEN PRINT#10;z1$*z2$: GO TO 386
+418  IF rc$="/" THEN IF z2$<>0 THEN PRINT#10;z1$/z2$: GO TO 386: ELSE IF z2$=0 THEN GO TO 426
+420  IF rc$="^" THEN PRINT#10;z1$^z2$: GO TO 386
+422  IF rc$="&" THEN PRINT#10;z1$&z2$: GO TO 386
+424  IF rc$="" THEN PRINT#10;z1$: GO TO 386
+426  PRINT#10;" Error !!!"
+428  GO TO 386
+430 END DEFine 
+432 DEFine FuNction FACT (zl)
+434  zz=1
+436  FOR a=1 TO zl
+438   zz=zz*a
+440  END FOR a
+442  RETurn zz
+444 END DEFine 
+446 DEFine PROCedure ck_pi
+448  IF z1$=="PI" THEN z1$=PI
+450  IF z2$=="PI" THEN z2$=PI
+452  IF z1$=="-PI" THEN z1$=-PI
+454  IF z2$=="-PI" THEN z2$=-PI
+456 END DEFine 
+458 DEFine PROCedure save_note
+460  SELect ON num_but
+462   =3: END DEFine 
+464   =1: ndev$="mdv1_"
+466   =2: ndev$="fdk1_"
+468  END SELect 
+470  DELETE ndev$&"note_dat"
+472  OPEN_NEW#4,ndev$&"note_dat"
+474  PRINT#4,note$
+476  CLOSE#4
+478 END DEFine 
+480 DEFine PROCedure load_note
+482  SELect ON num_but
+484   =3: END DEFine 
+486   =1: ndev$="mdv1_"
+488   =2: ndev$="fdk1_"
+490  END SELect 
+492  OPEN#4,ndev$&"note_dat"
+494  INPUT#4,note$
+496  CLOSE#4
+498  cw(5)=2: abfrage
+500 END DEFine 
+502 DEFine PROCedure adjust
+504  COM_BOX 1,32,"Date/LoadWindows/SaveWindows",6
+506  REPAIR_WIND: abfrage
+508  SELect ON number
+510   =0: GO TO 118
+512   =1: IF NOT scn(4) THEN OPEN_WIND 4,x(4),y(4),130,40,"A: Date","NewDate",4,7: cw(4)=2: abfrage: ck_date: ELSE IF scn(4) THEN ck_date
+514   =2: LOAD_WIND 100,200: abfrage
+516   =3: SAVE_WIND 100,200: abfrage
+518  END SELect 
+520  MOUSE 4,0,72,my,mx
+522  FOR wd=1 TO 12
+524   CHECK_WIND wd
+526   IF cw(wd)=0 THEN GO TO 118
+528   abfrage
+530  END FOR wd
+532  GO TO 118
+534 END DEFine 
+536 DEFine PROCedure abfrage
+538  FOR wd=1 TO 12
+540   IF NOT scn(wd) THEN GO TO 556
+542   IF cw(1)=2 THEN CLS#5: PRINT#5;"       ";FREE;" Bytes free": cw(1)=0
+544   IF cw(2)=2 THEN CLS#6: PRINT#6;"  ";CHR$(127);" 1987 by Much Soft": PRINT#6;"     written by TM": PRINT#6;"      Version 2.3": cw(2)=0
+546   IF cw(4)=2 THEN CLS#8: da$=DATE$: PRINT#8;"     ";da$(13 TO 20): PRINT#8;"   ";DAY$;",";da$(10 TO 11);" ";da$(6 TO 8);" ";da$(1 TO 4): cw(4)=0
+548   IF cw(5)=2 THEN CLS#9: PRINT#9;note$: cw(5)=0
+550   IF cw(7)=2 THEN info: cw(7)=0
+552   IF cw(8)=2 THEN CLS#12: PRINT#12;" Press CTRL+F5 to break/continue.": cw(8)=0
+554   IF cw(10)=2 THEN CLS#14: PRINT#14;"Copy ";device$;file$;" to": cw(10)=0
+556  END FOR wd
+558 END DEFine 
+560 DEFine PROCedure show_icons
+562  ICON 10,25,1: ICON 55,25,4
+564  ICON 100,25,2: ICON 145,25,3
+566  DIR_ICON 470,240,"mdv1"
+568  DIR_ICON 470,220,"mdv2"
+570  DIR_ICON 470,200,"fdk1"
+572  DIR_ICON 470,180,"fdk2"
+574  SINCLAIR 430,230
+576 END DEFine 
+578 DEFine PROCedure sag
+580  DELETE fdk1_GAM_sys: SAVE fdk1_GAM_sys,TO 999: DIR fdk1_
+582 END DEFine 

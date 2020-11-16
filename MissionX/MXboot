@@ -1,0 +1,5 @@
+1 MODE 8: WINDOW 512,256,0,0: PAPER 0: INK 4: CLS
+2 LBYTES fdk1_MX_pic,131072
+3 st$=CHR$(127)&" 1987 by Much Soft": FOR p=LEN(st$) TO 1 STEP -1: AT 19,20: PRINT st$(p TO): BEEP 500,p,1,12,15,p,5: END FOR p
+4 st$="written by TM": FOR p=LEN(st$) TO 1 STEP -1: AT 21,22: PRINT st$(p TO): BEEP 500,p,1,12,15,p,5: END FOR p
+5 MRUN fdk1_MissionX

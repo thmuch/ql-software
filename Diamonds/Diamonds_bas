@@ -1,0 +1,371 @@
+1 REMark * * * * * * * * * * * *
+2 REMark *   D I A M O N D S   *
+3 REMark *  (c)1987 Much Soft  *
+4 REMark * * * * * * * * * * * *
+5 REMark * Thomas Much         *
+6 REMark * Koppelweg 16a       *
+7 REMark * 3201 Diekholzen     *
+8 REMark * Tel.: 05121/262007  *
+9 REMark * * * * * * * * * * * *
+20 CLEAR: RESTORE : TRA 1: MODE 8
+22 CSIZE 2,0: DIM feld$(21,42),hofn$(3,11),hofs(3)
+24 level=1: old=0: runde=0
+26 BORDER#2,0: CLS#2: INK#0,7
+30 OPEN#4,mdv1_LevelMax_dm: INPUT#4,max_level: CLOSE#4
+40 CLS#0
+42 AT#0,1,3: PRINT#0;"Bitte warten - Grafik wird erstellt"
+90 udg: men‡
+99 STOP
+100 DEFine PROCedure men‡
+102  WINDOW 484,202,14,0: BORDER 1,7: PAPER 0: OVER 0: CLS
+104  WINDOW#0,512,32,0,215: BORDER#0,1,7: PAPER#0,0: CLS#0
+106  old=level: level=1: runde=0: alt: score=0
+108  a$="*** DIAMONDS *** "&CHR$(127)&"1987 by Much Soft ***"
+110  CSIZE 3,1: INK 5
+112  AT 2,4: PRINT "F1 - Restart Game"
+114  AT 3,4: PRINT "F2 - Continue Game"
+116  AT 4,4: PRINT "F3 - Quit"
+118  AT 5,4: PRINT "F4 - Hall of Fame"
+120  AT 6,4: PRINT "F5 - Editor"
+122  CSIZE 2,0: INK 7
+124  fb=1: a=1
+126  REPeat warten
+128   AT#0,1,a: INK #0,fb: PRINT#0;a$(a)
+130   IF a$(a)<>" " THEN fb=fb+1
+132   IF fb>7 THEN fb=1
+134   a=a+1: IF a>LEN(a$) THEN a=1
+136   k0=KEYROW(0)
+138   IF k0&&2 THEN game: men‡
+140   IF k0&&8 THEN level=old: game: men‡
+142   IF k0&&16 THEN POKE_L 163900,0: POKE 163900,25
+144   IF k0&&1 THEN hof
+146   IF k0&&32 THEN editor: men‡
+148  END REPeat warten
+150 END DEFine 
+1000 DEFine PROCedure game
+1004  INK#0,7: CLS: CLS#0
+1006  neu: AT#0,1,14: PRINT#0;"Level ";level
+1010  laden level
+1020  FOR y=0 TO 18 STEP 2
+1022   FOR x=0 TO 38 STEP 2
+1024    printen y,x
+1026   END FOR x
+1028  END FOR y
+1030  INK 7
+1032  AT (ry-sy)*2,(rx-sx)*2: PRINT "AB"
+1034  AT (ry-sy)*2+1,(rx-sx)*2: PRINT "CD"
+1080  ldia=diam: schieb=0
+1082  time=(150-runde*10)+ldia+etime
+1086  pa0: pa0: CLS#0
+1094  anzeige_init
+1096  atime=DATE: anzeige
+1100  REPeat spiel
+1106   anzeige
+1108   IF time-(DATE-atime)<=0 THEN gameover
+1110   k1=KEYROW(1): ply=0: plx=0
+1112   IF k1&&8 THEN hof
+1114   IF k1&&2 THEN plx=-1
+1116   IF k1&&16 THEN plx=1
+1118   IF k1&&4 THEN ply=-1
+1120   IF k1&&128 THEN ply=1
+1130   IF k1<>0 THEN bewegen
+1160  END REPeat spiel
+1199 END DEFine 
+1500 DEFine PROCedure bewegen
+1504  tsy=(ry-sy)*2: tsx=(rx-sx)*2
+1510  AT tsy,tsx: PRINT "  ": AT tsy+1,tsx: PRINT "  ": feld$(ry,rx)=" "
+1512  abfrage
+1514  IF schieb THEN schieb=0: schieben
+1516  tsy=(ry-sy)*2: tsx=(rx-sx)*2
+1518  INK 7: AT tsy,tsx: PRINT "AB": AT tsy+1,tsx: PRINT "CD": feld$(ry,rx)="R"
+1520  IF feld$(ry-1-ply,rx-plx)="F" THEN fallen ry-1-ply,rx-plx
+1522  IF ldia=0 THEN next_level
+1529 END DEFine 
+3000 DEFine PROCedure abfrage
+3004  ly=ry+ply: lx=rx+plx: schieb=0
+3010  IF feld$(ly,lx)="M" THEN ply=0: plx=0: GO TO 3900
+3020  IF feld$(ly,lx)="E" THEN score=score+1: anzeige: feld$(ly,lx)=" ": BEEP 150,100
+3030  IF feld$(ly,lx)="D" THEN ldia=ldia-1: score=score+10: anzeige: feld$(ly,lx)=" ": BEEP 350,0,20,150,2,0,0,0
+3040  IF feld$(ly,lx)="F" THEN schieb=1
+3900  ry=ry+ply: rx=rx+plx
+3910  IF rx-sx=0 THEN PAN 24: sx=sx-1: FOR y=0 TO 18 STEP 2: printen y,0: END FOR y
+3920  IF rx-sx=19 THEN PAN -24: sx=sx+1: FOR y=0 TO 18 STEP 2: printen y,38: END FOR y
+3930  IF ry-sy=0 THEN SCROLL 20: sy=sy-1: FOR x=0 TO 38 STEP 2: printen 0,x: END FOR x
+3940  IF ry-sy=9 THEN SCROLL -20: sy=sy+1: FOR x=0 TO 38 STEP 2: printen 18,x: END FOR x
+3999 END DEFine 
+4000 DEFine PROCedure schieben
+4004  IF feld$(ly,lx+plx)=" " THEN scp: GO TO 4009
+4006  ry=ry-ply: rx=rx-plx
+4009 END DEFine 
+4020 DEFine PROCedure scp
+4022  feld$(ly,lx+plx)="F": feld$(ly,lx)=" "
+4024  ty=ly-sy: tx=(lx+plx)-sx
+4026  IF ty>-1 THEN IF ty<19 THEN IF tx>-1 THEN IF tx<39 THEN INK 5: AT ty*2,tx*2: PRINT "KL": AT ty*2+1,tx*2: PRINT "MN"
+4028  fallen ly,lx+plx
+4030 END DEFine 
+4200 DEFine PROCedure fallen (ey,ex)
+4204  eey=ey+1: eex=ex: gmo=0: fl=0
+4210  REPeat loop
+4212   eey=eey-1
+4214   tey=eey: tex=eex
+4216   IF feld$(eey,eex)<>"F" THEN EXIT loop
+4218   AT#0,1,38: PRINT#0;time-(DATE-atime);" "
+4220   REPeat search
+4222    IF feld$(tey+1,tex)<>" " THEN EXIT search
+4224    IF feld$(tey+2,tex)="R" THEN feld$(tey+2,tex)=" ": gmo=1
+4226    esy=tey-sy: esx=tex-sx
+4230    IF esy>-1 THEN IF esy<10 THEN IF esx>-1 THEN IF esx<20 THEN AT esy*2,esx*2: PRINT "  ": AT esy*2+1,esx*2: PRINT "  "
+4240    feld$(tey,tex)=" ": tey=tey+1
+4242    feld$(tey,tex)="F"
+4256    esy=tey-sy: esx=tex-sx
+4260    IF esy>-1 THEN IF esy<10 THEN IF esx>-1 THEN IF esx<20 THEN INK 5: AT esy*2,esx*2: PRINT "KL": AT esy*2+1,esx*2: PRINT "MN"
+4264    fl=1
+4278   END REPeat search
+4280   IF fl THEN BEEP 2800,56,11,-3556,-5,0,12,3
+4290  END REPeat loop
+4294  IF gmo THEN gmo=0: gameover
+4299 END DEFine 
+4500 DEFine PROCedure gameover
+4510  CLS#0
+4512  AT#0,1,12: FLASH#0,1
+4514  PRINT#0;"GAME OVER": FLASH#0,0
+4516  score=score+(time-(DATE-atime))
+4520  pa0: pa0: hof
+4549 END DEFine 
+5000 DEFine PROCedure next_level
+5010  level=level+1
+5014  IF level>max_level THEN level=1: runde=runde+1
+5016  score=score+(time-(DATE-atime))
+5020  game
+5029 END DEFine 
+5100 DEFine PROCedure anzeige
+5104  AT#0,1,12: PRINT#0;ldia;" "
+5106  AT#0,1,25: PRINT#0;score
+5108  AT#0,1,38: PRINT#0;time-(DATE-atime);" "
+5109 END DEFine 
+5120 DEFine PROCedure anzeige_init
+5122  AT#0,1,1: PRINT#0;"Diamanten:"
+5124  AT#0,1,18: PRINT#0;"Score:"
+5126  AT#0,1,32: PRINT#0;"Zeit:"
+5129 END DEFine 
+6000 DEFine PROCedure hof
+6002  CLS: CLS#0: INK#0,7: alt: a$="HALL of FAME": a=1: fb=1
+6004  INK 6: LINE 22,70 TO 134,70 TO 134,22 TO 22,22 TO 22,70
+6006  LINE 26,66 TO 130,66 TO 130,26 TO 26,26 TO 26,66: LINE 134,22 TO 130,26
+6008  LINE 22,22 TO 26,26: LINE 22,70 TO 26,66: LINE 134,70 TO 130,66
+6010  OPEN#4,mdv1_HoF_dm
+6012  FOR n=1 TO 3
+6014   INPUT#4;hofn$(n,1 TO 11)
+6016   INPUT#4;hofs(n)
+6018  END FOR n
+6020  CLOSE#4: hofp2
+6034  IF score<=hofs(3) THEN GO TO 6074
+6036  nm$=""
+6040  AT#0,1,1: PRINT#0;"Enter Your Name: ": FLASH#0,1
+6042  REPeat inp
+6044   AT#0,1,18: PRINT#0;nm$;" ": hofp: i$=INKEY$
+6046   IF i$=CHR$(10) THEN EXIT inp
+6048   IF CODE(i$)=192 THEN IF LEN(nm$)>0 THEN nm$=nm$(1 TO LEN(nm$)-1)
+6050   IF CODE(i$)>31 AND CODE (i$)<192 THEN IF LEN(nm$)<11 THEN nm$=nm$&i$
+6052  END REPeat inp
+6054  FLASH#0,0
+6056  hofn$(3,1 TO 11)=nm$: hofs(3)=score
+6058  FOR m=2 TO 1 STEP -1
+6060   IF hofs(m+1)>hofs(m) THEN SWAP hofn$(m+1,1 TO 11),hofn$(m,1 TO 11): SWAP hofs(m+1),hofs(m)
+6062  END FOR m
+6064  DELETE mdv1_HoF_dm: OPEN_NEW#4,mdv1_HoF_dm
+6066  FOR u=1 TO 3
+6068   PRINT#4;hofn$(u,1 TO 11): PRINT#4;hofs(u)
+6070  END FOR u
+6072  CLOSE#4: hofp2
+6074  CLS#0: FLASH#0,1: AT#0,1,8
+6076  PRINT#0;">>> Press Any Key <<<": FLASH#0,0
+6078  FOR q=1 TO 2
+6080   hofp: IF INKEY$<>"" THEN GO TO 6080
+6082   hofp: IF INKEY$="" THEN GO TO 6082
+6084  END FOR q
+6086  men‡
+6099 END DEFine 
+6100 DEFine PROCedure hofp
+6102  CSIZE 3,1
+6110  AT 1,a+6: INK fb: PRINT a$(a)
+6114  IF a$(a)<>" " THEN fb=fb+1: IF fb>7 THEN fb=1
+6118  a=a+1: IF a>LEN(a$) THEN a=1
+6122  CSIZE 2,0
+6129 END DEFine 
+6150 DEFine PROCedure SWAP (s1$,s2$)
+6154  c$=s1$: s1$=s2$: s2$=c$
+6159 END DEFine 
+6200 DEFine PROCedure hofp2
+6204  CSIZE 2,1: INK 5
+6210  FOR n=1 TO 3
+6212   AT n+3,7: PRINT hofn$(n,1 TO 11)
+6214   AT n+3,20: PRINT hofs(n)
+6216  END FOR n
+6218  CSIZE 2,0: INK 7
+6219 END DEFine 
+10000 DEFine PROCedure laden (lvl)
+10004  OPEN#4,"mdv1_Level"&lvl&"_dm"
+10010  INPUT#4;sy: INPUT#4;sx
+10012  INPUT#4;ry: INPUT#4;rx
+10014  INPUT#4;diam
+10020  FOR z=1 TO 21
+10024   INPUT#4;feld$(z,1 TO 42)
+10028  END FOR z
+10030  INPUT#4;etime
+10032  CLOSE#4
+10049 END DEFine 
+10100 DEFine PROCedure printen (py,px)
+10104  ze$=feld$(sy+py/2,sx+px/2)
+10112  IF ze$="M" THEN INK 3: AT py,px: PRINT "EF": AT py+1,px: PRINT "FE"
+10114  IF ze$="E" THEN INK 2: AT py,px: PRINT "GH": AT py+1,px: PRINT "IJ"
+10116  IF ze$="F" THEN INK 5: AT py,px: PRINT "KL": AT py+1,px: PRINT "MN"
+10118  IF ze$="D" THEN INK 6: AT py,px: PRINT "OP": AT py+1,px: PRINT "QR"
+10129 END DEFine 
+20000 DEFine PROCedure editor
+20002  WINDOW#0,512,44,0,212: BORDER#0,1,255: PAPER#0,0: INK#0,7: CLS#0
+20004  WINDOW 512,212,0,0: BORDER 1,255: PAPER 0: INK 7: CLS
+20006  AT#0,1,5: PRINT#0;"F1  - Level laden"
+20008  AT#0,2,5: PRINT#0;"F2  - Level editieren"
+20010  robot=1: ry=1: rx=1: sy=1: sx=1: diam=0: etime=0
+20012  REPeat warten
+20014   k1=KEYROW(1): k0=KEYROW(0)
+20016   IF k1&&8 THEN GO TO 20172
+20018   IF k0&&2 THEN levelladen: art=0: robot=0: EXIT warten
+20020   IF k0&&8 THEN art=1: EXIT warten
+20022  END REPeat warten
+20024  CLS#0
+20026  AT#0,0,1: PRINT#0;"TAB - Auswahl des Bildschirmabschnitts"
+20028  AT#0,1,1: PRINT#0;"SPACE - Freiraum   D - Diamant"
+20030  AT#0,2,1: PRINT#0;"M     - Mauer      E - Erde": AT#0,3,1: PRINT#0;"F     - Fels       R - Roboter"
+20032  IF NOT art THEN GO TO 20042
+20034  feld$(1,1 TO 42)=FILL$("M",42)
+20036  feld$(21,1 TO 42)=FILL$("M",42)
+20038  FOR z=2 TO 20: feld$(z,1)="M": feld$(z,42)="M": END FOR z
+20040  FOR y=2 TO 20: feld$(y,2 TO 41)=FILL$("E",40): END FOR y
+20042  FOR n=1 TO 21
+20044   AT n-1,0: PRINT feld$(n,1 TO 42)
+20046  END FOR n
+20048  IF NOT art THEN AT ry-1,rx-1: FLASH 1: PRINT "R": FLASH 0
+20050  cury=1: curx=1
+20052  OVER-1: BLOCK 12,10,curx*12,cury*10,7
+20054  REPeat edd
+20056   k1=KEYROW(1): k2=KEYROW(2): k3=KEYROW(3): k4=KEYROW(4): k5=KEYROW(5): k6=KEYROW(6): blc
+20060   IF cury>1 THEN IF k1&&4 THEN cury=cury-1
+20062   IF cury<19 THEN IF k1&&128 THEN cury=cury+1
+20064   IF curx>1 THEN IF k1&&2 THEN curx=curx-1
+20066   IF curx<40 THEN IF k1&&16 THEN curx=curx+1
+20068   IF k1&&8 THEN GO TO 20172
+20070   IF k5&&8 THEN IF robot THEN BEEP 10000,200: GO TO 20074
+20072   IF k5&&8 THEN EXIT edd
+20074   IF k5&&16 THEN IF robot THEN IF feld$(cury+1,curx+1)="D" THEN diam=diam-1
+20076   IF k5&&16 THEN IF robot THEN robot=0: AT cury,curx: FLASH 1: PRINT "R": FLASH 0: feld$(cury+1,curx+1)="R": ry=cury+1: rx=curx+1
+20082   IF k2&&64 THEN ect: AT cury,curx: PRINT "M": feld$(cury+1,curx+1)="M"
+20088   IF k6&&16 THEN ect: AT cury,curx: PRINT "E": feld$(cury+1,curx+1)="E"
+20094   IF k3&&16 THEN ect: AT cury,curx: PRINT "F": feld$(cury+1,curx+1)="F"
+20098   IF k4&&64 THEN ect: AT cury,curx: PRINT "D": feld$(cury+1,curx+1)="D": diam=diam+1
+20104   IF k1&&64 THEN ect: AT cury,curx: PRINT " ": feld$(cury+1,curx+1)=" "
+20106   blc
+20108  END REPeat edd
+20110  CLS#0: AT#0,1,1: PRINT#0;CHR$(190);CHR$(191);CHR$(188);CHR$(189);" - Auswahl des Bildschirmabschnitts"
+20112  AT#0,2,1: PRINT#0;"CTRL - Abspeichern des Levels"
+20114  OVER-1: BLOCK 240,100,(sx-1)*12,(sy-1)*10,7
+20116  REPeat ed2
+20118   k1=KEYROW(1): k7=KEYROW(7)
+20120   IF k1<>0 THEN OVER-1: BLOCK 240,100,(sx-1)*12,(sy-1)*10,7: OVER 0
+20122   IF (sy-1)>0 THEN IF k1&&4 THEN sy=sy-1
+20124   IF (sy-1)<11 THEN IF k1&&128 THEN sy=sy+1
+20126   IF (sx-1)>0 THEN IF k1&&2 THEN sx=sx-1
+20128   IF (sx-1)<22 THEN IF k1&&16 THEN sx=sx+1
+20130   IF k1<>0 THEN OVER-1: BLOCK 240,100,(sx-1)*12,(sy-1)*10,7: OVER 0
+20132   mx=rx-sx: my=ry-sy
+20134   IF k7&&2 THEN IF mx<1 OR mx>18 OR my<1 OR my>8 THEN BEEP 10000,200: GO TO 20138
+20136   IF k7&&2 THEN EXIT ed2
+20138   IF k1&&8 THEN GO TO 20172
+20140  END REPeat ed2
+20142  CLS#0: AT#0,1,2: INPUT#0;"Extra-Zeit ("&etime&") ? ";etime
+20144  CLS#0: AT#0,1,2: PRINT#0;max_level;" Level existieren bereits."
+20146  AT#0,2,2: INPUT#0;"Level-Nummer ? ";nr
+20148  IF nr=0 THEN GO TO 20172
+20150  IF nr>max_level THEN max_level=nr: DELETE mdv1_LevelMax_dm: OPEN_NEW#4,mdv1_LevelMax_dm: PRINT#4,max_level: CLOSE#4
+20152  DELETE "mdv1_Level"&nr&"_dm"
+20154  OPEN_NEW#4,"mdv1_Level"&nr&"_dm"
+20156  PRINT#4;sy: PRINT#4;sx
+20158  PRINT#4;ry: PRINT#4;rx
+20160  PRINT#4;diam
+20162  FOR z=1 TO 21
+20164   PRINT#4;feld$(z,1 TO 42)
+20166  END FOR z
+20168  PRINT#4;etime
+20170  CLOSE#4: level=nr: OVER 0
+20172  BORDER#0,0: BORDER 0: CLS#0: CLS
+20174 END DEFine 
+20200 DEFine PROCedure levelladen
+20204  CLS#0: AT#0,1,3
+20206  INPUT#0;"Level-Nummer (1-"&max_level&") ? ";nr
+20208  IF nr>max_level THEN GO TO 20204
+20210  OPEN#4,"mdv1_Level"&nr&"_dm"
+20220  INPUT#4;sy: INPUT#4;sx
+20222  INPUT#4;ry: INPUT#4;rx
+20224  INPUT#4;diam
+20230  FOR z=1 TO 21
+20234   INPUT#4;feld$(z,1 TO 42)
+20238  END FOR z
+20240  INPUT#4;etime
+20244  CLOSE#4: level=nr
+20249 END DEFine 
+21000 DEFine PROCedure blc
+21004  IF k1<>0 OR k2<>0 OR k3<>0 OR k4<>0 OR k5<>0 OR k6<>0 THEN OVER-1: BLOCK 12,10,curx*12,cury*10,7: OVER 0
+21009 END DEFine 
+21020 DEFine PROCedure ect
+21024  IF feld$(cury+1,curx+1)="D" THEN diam=diam-1
+21026  IF feld$(cury+1,curx+1)="R" THEN robot=1
+21029 END DEFine 
+30000 DEFine PROCedure udg
+30002  adr1=PEEK_L(PEEK_L(163960)+4)+42
+30004  old_chr=PEEK_L(adr1)
+30006  new_chr=RESPR(1442)
+30010  FOR n=0 TO 1442 STEP 4
+30012   POKE_L new_chr+n,PEEK_L(old_chr+n)
+30014  END FOR n
+30020  neu: RESTORE 30050: noc=18
+30022  FOR char=1 TO noc
+30024   READ c$: c=CODE(c$)
+30026   cp=new_chr+10+(c-32)*9
+30030   FOR dat=1 TO 9
+30032    READ dd: POKE cp+dat,dd
+30034   END FOR dat
+30036  END FOR char
+30039 END DEFine 
+30050 REMark Shapes
+30052  DATA "A",12,16,36,32,72,64,144,128,252
+30054  DATA "B",192,32,144,16,72,8,36,4,252
+30056  DATA "C",252,128,144,64,72,32,36,16,12
+30058  DATA "D",252,4,36,8,72,16,144,32,192
+30060  DATA "E",252,128,128,128,128,128,128,128,252
+30062  DATA "F",252,4,4,4,4,4,4,4,252
+30064  DATA "G",220,180,108,220,180,236,216,180,220
+30066  DATA "H",236,220,180,236,180,108,252,164,108
+30068  DATA "I",168,116,236,216,180,236,120,220,180
+30070  DATA "J",220,180,236,216,188,236,216,180,116
+30072  DATA "K",12,20,48,40,64,84,208,132,168
+30074  DATA "L",192,32,16,176,72,120,156,188,124
+30076  DATA "M",212,136,188,84,108,60,60,28,12
+30078  DATA "N",252,252,252,248,248,240,240,224,192
+30080  DATA "O",4,8,8,16,16,32,32,64,252
+30082  DATA "P",128,64,64,32,32,16,16,8,252
+30084  DATA "Q",252,64,32,32,16,16,8,8,4
+30086  DATA "R",252,8,16,16,32,32,64,64,128
+32020 DEFine PROCedure pa0
+32024  IF INKEY$<>"" THEN GO TO 32024
+32026  IF INKEY$="" THEN GO TO 32026
+32029 END DEFine 
+32200 DEFine PROCedure alt
+32204  POKE_L adr1,old_chr
+32209 END DEFine 
+32220 DEFine PROCedure neu
+32224  POKE_L adr1,new_chr
+32229 END DEFine 
+32760 DEFine PROCedure SA
+32764  DELETE mdv1_Diamonds_bas: SAVE mdv1_Diamonds_bas: DIR mdv1_
+32767 END DEFine 

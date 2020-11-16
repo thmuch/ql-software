@@ -1,0 +1,856 @@
+1 REMark * * * * * * * * * * * *
+2 REMark *      Mission X      *
+3 REMark * (c) 1987 Much Soft  *
+4 REMark * * * * * * * * * * * *
+5 REMark * Thomas Much         *
+6 REMark * Koppelweg 16a       *
+7 REMark * 3201 Diekholzen     *
+8 REMark * Tel.: 05121/262007  *
+9 REMark * * * * * * * * * * * *
+10 MODE 8: CLEAR: RESTORE : RANDOMISE: TRA 1: BAUD 9600
+20 OPEN #1,con
+22 OPEN #2,con
+24 OPEN #3,ser1
+26 OPEN #4,con
+28 OPEN #5,con
+30 zeit=1800: ri$="??": init: neu=zeit: mus=0
+32 LLIST "BITTE WARTEN !!!    DIE GRAFIK WIRD     ERSTELLT."
+40 DIM feld$(12,18,42)
+42 DIM ms(2),my(2),mx(2),mr(2): rich=4
+44 udg
+46 sheet_init
+50 POKE_L adr,new_chr
+52 zeit=neu: ri$="??": rich=4
+54 d1$=CHR$(191)&CHR$(191): d2$=CHR$(188)&CHR$(188): d3$=CHR$(191)&CHR$(188)
+56 ja=1: jj=0: detec=0: anlei=0: schr=0: dyn=0: chip=0
+58 nehmen=0: unter=0: spreng=0: einsetz=0
+60 ms(1)=5: my(1)=14: mx(1)=5: mr(1)=3
+62 ms(2)=4: my(2)=14: mx(2)=26: mr(2)=4
+90 init
+96 start
+99 STOP
+100 DEFine PROCedure start
+102 CLS#4: INK #4,1,4
+104 pos_y=3: pos_x=30
+110 st$="F1 - Spielstart": FOR p=LEN(st$) TO 1 STEP -1: AT #4,1,1: PRINT #4,st$(p TO): BEEP 500,p,1,12,15,p,5: END FOR p
+112 st$="F2 - Erkl€rung": FOR p=LEN(st$) TO 1 STEP -1: AT #4,3,1: PRINT #4,st$(p TO): BEEP 500,p,1,12,15,p,5: END FOR p
+114 musik
+120 REPeat ab
+122  IF KEYROW(0)=2 THEN EXIT ab
+124  IF KEYROW(0)=8 THEN erkl€rung: EXIT ab
+126 END REPeat ab
+170 CLS: CLS#4: INK #4,0
+190 zeit=DATE+neu
+192 raum5
+199 END DEFine 
+200 DEFine PROCedure raum1
+202 sheet 1: raum=1
+204 pri
+206 ri$=d1$
+230 REPeat af
+232 IF pos_x=40 THEN pos_x=2: raum4
+234 IF pos_y=16 THEN pos_y=2: raum2
+250 IF NOT detec THEN INK 4: AT 9,24: PRINT "QR": AT 10,24: PRINT "ST"
+260 steuerung
+270 IF unter THEN IF NOT detec THEN IF pos_y=8 OR pos_y=9 THEN IF pos_x>=24 AND pos_x<=26 THEN LLIST "EIN DETEKTOR.": unter=0
+272 IF unter THEN LLIST "NICHTS BESONDERES.": unter=0
+274 IF nehmen THEN IF NOT detec THEN IF pos_y=8 OR pos_y=9 THEN IF pos_x>=24 AND pos_x<=26 THEN LLIST "DETEKTOR GENOMMEN.": detec=1: AT 9,24: PRINT "  ": AT 10,24: PRINT "  ": pri: POKE_L adr2,new_chr: INK #2,7: AT #2,0,1: PRINT#2;"QR": AT #2,1,1: PRINT#2;"ST": INK #2,0: POKE_L adr2,old_chr: nehmen=0
+276 IF nehmen THEN LLIST "HIER IST NICHTS.": nehmen=0
+290 END REPeat af
+299 END DEFine 
+300 DEFine PROCedure raum2
+302 sheet 2: raum=2
+304 pri
+306 ri$=d1$
+330 REPeat af
+332 IF pos_x=40 THEN pos_x=2: raum5
+334 IF pos_y=1 THEN pos_y=15: raum1
+336 IF pos_y=16 THEN pos_y=2: raum3
+350 IF NOT schr THEN INK 3: AT 7,20: PRINT "U": AT 8,20: PRINT "V"
+360 steuerung
+370 IF unter THEN IF NOT schr THEN IF pos_y=7 OR pos_y=8 THEN IF pos_x>=19 AND pos_x<=21 THEN LLIST "SCHRAUBENZIEHER.": unter=0
+372 IF unter THEN LLIST "NICHTS BESONDERES.": unter=0
+374 IF nehmen THEN IF NOT schr THEN IF pos_y=7 OR pos_y=8 THEN IF pos_x>=19 AND pos_x<=21 THEN LLIST "SCHRAUBENZIEHER     GENOMMEN.": schr=1: AT 7,20: PRINT " ": AT 8,20: PRINT " ": pri: POKE_L adr2,new_chr: INK #2,7: AT #2,0,3: PRINT#2;"U": AT #2,1,3: PRINT#2;"V": INK #2,0: POKE_L adr2,old_chr: nehmen=0
+376 IF nehmen THEN LLIST "HIER IST NICHTS.": nehmen=0
+380 IF spreng THEN IF NOT dyn THEN LLIST "DU HAST KEIN DYNAMIT": spreng=0
+382 IF spreng THEN IF pos_y>=10 AND pos_y<=15 THEN IF pos_x=33 THEN BEEP 20000,1,255,1,10,4,0,15: feld$(2,12,31)=" ": feld$(2,13,32)=" ": feld$(2,14,31)=" ": feld$(2,15,32)=" ": AT 11,30: PRINT " ": AT 12,31: PRINT " ": AT 13,30: PRINT " ": AT 14,31: PRINT " ": LLIST "OK.": dyn=0: AT #2,2,3: PRINT#2;" ": AT #2,3,3: PRINT#2;" ": spreng=0
+384 IF spreng THEN spreng=0: BEEP 20000,1,255,1,10,4,0,15: PAUSE 70: LLIST "NICHTS PASSIERT.": dyn=0: AT #2,2,3: PRINT #2;" ": AT #2,3,3: PRINT #2;" "
+390 END REPeat af
+399 END DEFine 
+400 DEFine PROCedure raum3
+402 sheet 3: raum=3
+404 pri
+406 ri$="##"
+430 REPeat af
+432 IF pos_y=1 THEN pos_y=15: raum2
+450 IF NOT chip THEN INK 0: AT 6,23: PRINT "NOP"
+452 INK 0: AT 14,24: PRINT "Y13579": AT 15,24: PRINT "Z24680"
+460 steuerung
+470 IF unter THEN IF NOT chip THEN IF pos_y=5 OR pos_y=6 THEN IF pos_x>=23 AND pos_x<=25 THEN LLIST "EIN MICROCHIP.": unter=0
+472 IF unter THEN IF pos_y>=13 AND pos_y<=15 THEN IF pos_x>=23 AND pos_x<=30 THEN LLIST "EIN COMPUTER.": unter=0
+474 IF unter THEN LLIST "NICHTS BESONDERES.": unter=0
+476 IF nehmen THEN IF NOT chip THEN IF pos_y=5 OR pos_y=6 THEN IF pos_x>=23 AND pos_x<=25 THEN LLIST "CHIP GENOMMEN.": chip=1: AT 6,23: PRINT "   ": pri: POKE_L adr2,new_chr: INK #2,7: AT #2,4,1: PRINT#2;"NOP": INK #2,0: POKE_L adr2,old_chr: nehmen=0
+478 IF nehmen THEN LLIST "HIER IST NICHTS.": nehmen=0
+480 IF einsetz THEN IF chip THEN IF pos_y>=13 THEN IF pos_x<=30 THEN IF anlei THEN IF schr THEN AT #2,4,1: PRINT #2;"   ": INK 7: AT 16,22: PRINT "NOP";CHR$(190): sieg
+482 IF einsetz THEN IF chip THEN IF anlei THEN IF schr THEN LLIST "HIER IST NICHTS, WO ETWAS EINGESETZT    WERDEN KANN.": einsetz=0
+484 IF einsetz THEN IF NOT chip THEN LLIST "DU HAST KEINEN CHIP.": einsetz=0
+486 IF einsetz THEN IF NOT anlei THEN LLIST "DU HAST KEINE       ANLEITUNG.": einsetz=0
+488 IF einsetz THEN IF NOT schr THEN LLIST "DU HAST KEINEN      SCHRAUBENZIEHER.": einsetz=0
+490 END REPeat af
+499 END DEFine 
+500 DEFine PROCedure raum4
+502 sheet 4: raum=4
+504 pri
+506 ri$=d3$
+530 REPeat af
+532 IF pos_x=1 THEN pos_x=39: raum1
+534 IF pos_x=40 THEN pos_x=2: raum7
+536 IF pos_y=16 THEN pos_y=2: raum5
+560 steuerung
+570 IF unter THEN unter=0: LLIST "NICHTS BESONDERES."
+574 IF nehmen THEN nehmen=0: LLIST "HIER IST NICHTS."
+590 END REPeat af
+599 END DEFine 
+600 DEFine PROCedure raum5
+602 sheet 5: raum=5
+604 pri
+606 ri$=d3$
+628 IF ja THEN LLIST "DIE ZEIT L UFT !!!": ja=0
+630 REPeat af
+632 IF pos_x=1 THEN pos_x=39: raum2
+634 IF pos_x=40 THEN pos_x=2: raum8
+636 IF pos_y=1 THEN pos_y=15: raum4
+638 IF pos_y=16 THEN pos_y=2: raum6
+660 steuerung
+670 IF unter THEN unter=0: LLIST "NICHTS BESONDERES."
+674 IF nehmen THEN nehmen=0: LLIST "HIER IST NICHTS."
+690 END REPeat af
+699 END DEFine 
+700 DEFine PROCedure raum6
+702 sheet 6: raum=6
+704 pri
+706 ri$=d2$
+730 REPeat af
+732 IF pos_x=40 THEN pos_x=2: raum9
+734 IF pos_y=1 THEN pos_y=15: raum5
+760 steuerung
+770 IF unter THEN unter=0: LLIST "NICHTS BESONDERES."
+774 IF nehmen THEN nehmen=0: LLIST "HIER IST NICHTS."
+790 END REPeat af
+799 END DEFine 
+800 DEFine PROCedure raum7
+802 sheet 7: raum=7
+804 pri
+806 ri$=d3$
+830 REPeat af
+832 IF pos_x=1 THEN pos_x=39: raum4
+834 IF pos_x=40 THEN pos_x=2: raum10
+836 IF pos_y=16 THEN pos_y=2: raum8
+860 steuerung
+870 IF unter THEN unter=0: LLIST "NICHTS BESONDERES."
+874 IF nehmen THEN nehmen=0: LLIST "HIER IST NICHTS."
+890 END REPeat af
+899 END DEFine 
+900 DEFine PROCedure raum8
+902 sheet 8: raum=8
+904 pri
+906 ri$=d3$
+930 REPeat af
+932 IF pos_x=1 THEN pos_x=39: raum5
+934 IF pos_x=40 THEN pos_x=2: raum11
+936 IF pos_y=1 THEN pos_y=15: raum7
+938 IF pos_y=16 THEN pos_y=2: raum9
+960 steuerung
+970 IF unter THEN unter=0: LLIST "NICHTS BESONDERES."
+974 IF nehmen THEN nehmen=0: LLIST "HIER IST NICHTS."
+990 END REPeat af
+999 END DEFine 
+1000 DEFine PROCedure raum9
+1002 sheet 9: raum=9
+1004 pri
+1006 ri$=d2$
+1030 REPeat af
+1032 IF pos_x=1 THEN pos_x=39: raum6
+1034 IF pos_x=40 THEN pos_x=2: raum12
+1036 IF pos_y=1 THEN pos_y=15: raum8
+1060 steuerung
+1070 IF unter THEN unter=0: LLIST "NICHTS BESONDERES."
+1074 IF nehmen THEN nehmen=0: LLIST "HIER IST NICHTS."
+1090 END REPeat af
+1099 END DEFine 
+1100 DEFine PROCedure raum10
+1102 sheet 10: raum=10
+1104 pri
+1106 ri$=d3$
+1130 REPeat af
+1132 IF pos_x=1 THEN pos_x=39: raum7
+1134 IF pos_y=16 THEN pos_y=2: raum11
+1160 steuerung
+1170 IF unter THEN unter=0: LLIST "NICHTS BESONDERES."
+1174 IF nehmen THEN nehmen=0: LLIST "HIER IST NICHTS."
+1190 END REPeat af
+1199 END DEFine 
+1200 DEFine PROCedure raum11
+1202 sheet 11: raum=11
+1204 pri
+1206 ri$=d3$
+1230 REPeat af
+1232 IF pos_x=1 THEN pos_x=39: raum8
+1234 IF pos_y=1 THEN pos_y=15: raum10
+1236 IF pos_y=16 THEN pos_y=2: raum12
+1250 IF NOT dyn THEN INK 6: AT 3,37: PRINT "W": AT 4,37: PRINT "X"
+1252  IF NOT anlei THEN INK 4: AT 9,22: PRINT "JK": AT 10,22: PRINT "LM"
+1260 steuerung
+1270 IF unter THEN IF NOT dyn THEN IF pos_y=2 OR pos_y=3 THEN IF pos_x=37 OR pos_x=38 THEN LLIST "DYNAMIT.": unter=0
+1272 IF unter THEN IF NOT anlei THEN IF pos_y=8 OR pos_y=9 THEN IF pos_x>=21 OR pos_x<=24 THEN LLIST "EINE ANLEITUNG.": unter=0
+1274 IF unter THEN LLIST "NICHTS BESONDERES.": unter=0
+1276 IF nehmen THEN IF NOT dyn THEN IF pos_y=2 OR pos_y=3 THEN IF pos_x=37 OR pos_x=38 THEN LLIST "DYNAMIT GENOMMEN.": dyn=1: AT 3,37: PRINT " ": AT 4,37: PRINT " ": pri: POKE_L adr2,new_chr: INK #2,7: AT #2,2,3: PRINT#2;"W": AT #2,3,3: PRINT #2;"X": INK #2,0: POKE_L adr2,old_chr: nehmen=0
+1278 IF nehmen THEN IF NOT anlei THEN IF pos_y=8 OR pos_y=9 THEN IF pos_x>=21 OR pos_x<=24 THEN LLIST "ANLEITUNG GENOMMEN.": anlei=1: AT 9,22: PRINT "  ": AT 10,22: PRINT "  ": pri: POKE_L adr2,new_chr: INK #2,7: AT #2,2,1: PRINT#2;"JK": AT #2,3,1: PRINT #2;"LM": INK #2,0: POKE_L adr2,old_chr: nehmen=0
+1280 IF nehmen THEN LLIST "HIER IST NICHTS.": nehmen=0
+1290 END REPeat af
+1299 END DEFine 
+1300 DEFine PROCedure raum12
+1302 sheet 12: raum=12
+1304 pri
+1306 ri$=d2$
+1330 REPeat af
+1332 IF pos_x=1 THEN pos_x=39: raum9
+1334 IF pos_y=1 THEN pos_y=15: raum11
+1350 IF NOT dyn THEN INK 6: AT 8,28: PRINT "W": AT 9,28: PRINT "X"
+1360 steuerung
+1370 IF unter THEN IF NOT dyn THEN IF pos_y=8 OR pos_y=9 THEN IF pos_x>=27 AND pos_x<=29 THEN LLIST "DYNAMIT.": unter=0
+1372 IF unter THEN LLIST "NICHTS BESONDERES.": unter=0
+1374 IF nehmen THEN IF NOT dyn THEN IF pos_y=8 OR pos_y=9 THEN IF pos_x>=27 AND pos_x<=29 THEN LLIST "DYNAMIT GENOMMEN.": dyn=1: AT 8,28: PRINT " ": AT 9,28: PRINT " ": pri: POKE_L adr2,new_chr: INK #2,7: AT #2,2,3: PRINT#2;"W": AT #2,3,3: PRINT#2;"X": INK #2,0: POKE_L adr2,old_chr: nehmen=0
+1376 IF nehmen THEN LLIST "HIER IST NICHTS.": nehmen=0
+1380 IF spreng THEN IF NOT dyn THEN LLIST "DU HAST KEIN DYNAMIT": spreng=0
+1382 IF spreng THEN IF pos_y>=11 AND pos_y<=14 THEN IF pos_x=36 THEN BEEP 20000,1,255,1,10,4,0,15: feld$(12,13,35)=" ": feld$(12,14,34)=" ": feld$(12,15,35)=" ": feld$(12,16,34)=" ": AT 12,34: PRINT " ": AT 13,33: PRINT " ": AT 14,34: PRINT " ": AT 15,33: PRINT " ": LLIST "OK.": dyn=0: AT #2,2,3: PRINT#2;" ": AT #2,3,3: PRINT#2;" ": spreng=0
+1384 IF spreng THEN spreng=0: BEEP 20000,1,255,1,10,4,0,15: PAUSE 70: LLIST "NICHTS PASSIERT.": dyn=0: AT #2,2,3: PRINT #2;" ": AT #2,3,3: PRINT #2;" "
+1390 END REPeat af
+1399 END DEFine 
+1500 DEFine PROCedure pl
+1502 INK 5
+1504 AT pos_y-1,pos_x-1: PRINT "abc"
+1506 AT pos_y,pos_x-1: PRINT "def"
+1508 AT pos_y+1,pos_x-1: PRINT "ghi"
+1509 END DEFine 
+1520 DEFine PROCedure pr
+1522 INK 5
+1524 AT pos_y-1,pos_x-1: PRINT "akc"
+1526 AT pos_y,pos_x-1: PRINT "mno"
+1528 AT pos_y+1,pos_x-1: PRINT "ghi"
+1529 END DEFine 
+1540 DEFine PROCedure pd
+1542 INK 5
+1544 AT pos_y-1,pos_x-1: PRINT "asc"
+1546 AT pos_y,pos_x-1: PRINT "jtl"
+1548 AT pos_y+1,pos_x-1: PRINT "pqr"
+1549 END DEFine 
+1560 DEFine PROCedure pu
+1562 INK 5
+1564 AT pos_y-1,pos_x-1: PRINT "auc"
+1566 AT pos_y,pos_x-1: PRINT "jvl"
+1568 AT pos_y+1,pos_x-1: PRINT "pqr"
+1569 END DEFine 
+1580 DEFine PROCedure cl
+1582 PAPER 2
+1584 AT pos_y-1,pos_x-1: PRINT "   "
+1586 AT pos_y,pos_x-1: PRINT "   "
+1588 AT pos_y+1,pos_x-1: PRINT "   "
+1589 END DEFine 
+1600 DEFine PROCedure links
+1602 IF SCR$(raum,pos_y-1,pos_x-2)="*" THEN abfrage: END DEFine 
+1604 IF SCR$(raum,pos_y,pos_x-2)="*" THEN abfrage: END DEFine 
+1606 IF SCR$(raum,pos_y+1,pos_x-2)="*" THEN abfrage: END DEFine 
+1608 cl
+1610 pos_x=pos_x-1
+1612 pl
+1619 END DEFine 
+1630 DEFine PROCedure rechts
+1632 IF SCR$(raum,pos_y-1,pos_x+2)="*" THEN abfrage: END DEFine 
+1634 IF SCR$(raum,pos_y,pos_x+2)="*" THEN abfrage: END DEFine 
+1636 IF SCR$(raum,pos_y+1,pos_x+2)="*" THEN abfrage: END DEFine 
+1638 cl
+1640 pos_x=pos_x+1
+1642 pr
+1649 END DEFine 
+1660 DEFine PROCedure hoch
+1662 IF SCR$(raum,pos_y-2,pos_x-1)="*" THEN abfrage: END DEFine 
+1664 IF SCR$(raum,pos_y-2,pos_x)="*" THEN abfrage: END DEFine 
+1666 IF SCR$(raum,pos_y-2,pos_x+1)="*" THEN abfrage: END DEFine 
+1668 cl
+1670 pos_y=pos_y-1
+1672 pu
+1679 END DEFine 
+1690 DEFine PROCedure runter
+1692 IF SCR$(raum,pos_y+2,pos_x-1)="*" THEN abfrage: END DEFine 
+1694 IF SCR$(raum,pos_y+2,pos_x)="*" THEN abfrage: END DEFine 
+1696 IF SCR$(raum,pos_y+2,pos_x+1)="*" THEN abfrage: END DEFine 
+1698 cl
+1700 pos_y=pos_y+1
+1702 pd
+1709 END DEFine 
+1800 DEFine PROCedure steuerung
+1802 k1=KEYROW(1)
+1804 SELect ON k1
+1806  =2: rich=4: links
+1808  =16: rich=2: rechts
+1810  =4: rich=1: hoch
+1812  =128: rich=3: runter
+1814 END SELect 
+1816 IF KEYROW(5)=8 THEN LLIST "SPIEL UNTERBROCHEN. WEITER MIT <ENTER>.": z=DATE: REPeat wt: IF KEYROW(1)=1 THEN EXIT wt: END REPeat wt: zeit=zeit+(DATE-z): LLIST "SPIEL L UFT WEITER.": END DEFine 
+1818 monster
+1820 IF zeit-DATE<=0 THEN gameover
+1822 AT #2,6,13: PRINT #2;(zeit-DATE) DIV 60;":";(zeit-DATE) MOD 60;" "
+1826 IF detec THEN AT #2,5,15: PRINT #2;ri$
+1828 IF KEYROW(7)=2 THEN men‡
+1830 IF KEYROW(1)=8 THEN gameover
+1839 END DEFine 
+1900 DEFine PROCedure pri
+1902 SELect ON rich
+1904  =1: pu
+1906  =2: pr
+1908  =3: pd
+1910  =4: pl
+1912 END SELect 
+1919 END DEFine 
+2000 DEFine PROCedure monster
+2002 INK 0
+2004 FOR m=1 TO 2
+2006 IF ms(m)=raum THEN AT my(m),mx(m): PRINT " "
+2008 rh=INT(RND(3)+1)
+2010 IF mr(m)=1 THEN IF SCR$(ms(m),my(m)-1,mx(m))<>"*" THEN my(m)=my(m)-1: GO TO 2020
+2012 IF mr(m)=2 THEN IF SCR$(ms(m),my(m),mx(m)+1)<>"*" THEN mx(m)=mx(m)+1: GO TO 2020
+2014 IF mr(m)=3 THEN IF SCR$(ms(m),my(m)+1,mx(m))<>"*" THEN my(m)=my(m)+1: GO TO 2020
+2016 IF mr(m)=4 THEN IF SCR$(ms(m),my(m),mx(m)-1)<>"*" THEN mx(m)=mx(m)-1: GO TO 2020
+2018 mr(m)=rh: GO TO 2008
+2020 IF ms(m)=raum THEN ab1
+2022 IF my(m)=0 THEN my(m)=16: wo
+2024 IF my(m)=17 THEN my(m)=1: wu
+2026 IF mx(m)=0 THEN mx(m)=40: wl
+2028 IF mx(m)=41 THEN mx(m)=1: wr
+2030 IF ms(m)=raum THEN jj=1
+2032 IF jj THEN IF mr(m)=1 THEN AT my(m),mx(m): PRINT "w": jj=0
+2034 IF jj THEN IF mr(m)=2 THEN AT my(m),mx(m): PRINT "z": jj=0
+2036 IF jj THEN IF mr(m)=3 THEN AT my(m),mx(m): PRINT "y": jj=0
+2038 IF jj THEN IF mr(m)=4 THEN AT my(m),mx(m): PRINT "x": jj=0
+2040 END FOR m
+2099 END DEFine 
+2200 DEFine PROCedure wo
+2202 ms(m)=ms(m)-1
+2209 END DEFine 
+2220 DEFine PROCedure wu
+2222 ms(m)=ms(m)+1
+2229 END DEFine 
+2240 DEFine PROCedure wl
+2242 ms(m)=ms(m)-3
+2249 END DEFine 
+2260 DEFine PROCedure wr
+2262 ms(m)=ms(m)+3
+2269 END DEFine 
+3000 DEFine PROCedure ab1
+3002 psy=pos_y-my(m): psx=pos_x-mx(m)
+3004 IF psy>=-1 AND psy<=1 THEN IF psx>=-1 AND psx<=1 THEN LLIST "EINE MARSBAZILLE HATDEN ROBOTER IN EINENHAUFEN SCHROTT VER- WANDELT (HEHE...)!!!": gameover
+3009 END DEFine 
+3100 DEFine PROCedure selonsm
+3102 OVER #2,-1
+3104 SELect ON sm
+3106  =1: BLOCK #2,175,10,58,0,7
+3108  =2: BLOCK #2,175,10,58,10,7
+3110  =3: BLOCK #2,175,10,58,20,7
+3112  =4: BLOCK #2,175,10,58,30,7
+3114  =5: BLOCK #2,175,10,58,40,7
+3116 END SELect 
+3118 OVER #2,0
+3119 END DEFine 
+3200 DEFine PROCedure selonma
+3202 FOR a=1 TO 2
+3204  IF ms(a)=raum THEN LLIST "MARSBAZILLEN SIND INDIESEM RAUM.": GO TO 3208
+3206 END FOR a
+3209 END DEFine 
+4000 DEFine PROCedure men‡
+4002 OVER#2,-1: ys=0: sm=1: BLOCK #2,175,10,58,0,7: OVER#2,0
+4010 REPeat fa
+4012 k1=KEYROW(1)
+4014  IF k1=4 OR k1=128 THEN selonsm: ys=1: sm=sm+(k1=128)-(k1=4)
+4016  IF sm<1 THEN sm=1: ys=0: selonsm
+4018  IF sm>5 THEN sm=5: ys=0: selonsm
+4020  IF ys=1 THEN selonsm: ys=0
+4022  IF zeit-DATE<=0 THEN gameover
+4024  AT #2,6,13: PRINT #2;(zeit-DATE) DIV 60;":";(zeit-DATE) MOD 60;" "
+4030  IF k1=64 THEN IF sm=1 THEN EXIT fa
+4032  IF k1=64 THEN IF sm=2 THEN nehmen=1: EXIT fa
+4034  IF k1=64 THEN IF sm=3 THEN unter=1: EXIT fa
+4036  IF k1=64 THEN IF sm=4 THEN spreng=1: EXIT fa
+4038  IF k1=64 THEN IF sm=5 THEN einsetz=1: EXIT fa
+4039 END REPeat fa
+4050 selonsm
+4060 IF einsetz THEN IF raum<>3 THEN einsetz=0: LLIST "HIER IST NICHTS,    WO ETWAS EINGESETZT WERDEN KANN."
+4062 IF unter THEN selonma
+4064 IF spreng THEN IF raum<>2 AND raum<>12 THEN IF dyn=1 THEN spreng=0: BEEP 20000,1,255,1,10,4,0,15: PAUSE 70: LLIST "NICHTS PASSIERT.": dyn=0: AT #2,2,3: PRINT #2;" ": AT #2,3,3: PRINT #2;" "
+4066 IF spreng THEN IF NOT dyn THEN IF raum<>2 AND raum<>12 THEN spreng=0: LLIST "DU HAST KEIN DYNAMIT"
+4099 END DEFine 
+30000 DEFine PROCedure sheet (nummer)
+30002 selonsh: zeit=zeit+18
+30004 FOR xp=1 TO 42
+30006 FOR yp=1 TO 18
+30008 AT yp-1,xp-1: IF feld$(nummer,yp,xp)="*" THEN PRINT quad$: ELSE PRINT " "
+30010 END FOR yp
+30012 END FOR xp
+30019 END DEFine 
+30020 DEFine PROCedure sheet_init
+30022 RESTORE 30050
+30024 FOR s=1 TO 12
+30026 FOR y=1 TO 18
+30028 READ f$
+30030 FOR x=1 TO 42
+30032 feld$(s,y,x)=f$(x)
+30034 END FOR x
+30036 END FOR y
+30038 END FOR s
+30049 END DEFine 
+30050 REMark sheet 1
+30051 DATA "******************************************"
+30052 DATA "**    *                           *       "
+30053 DATA "**                                        "
+30054 DATA "**                                        "
+30055 DATA "**                 *                      "
+30056 DATA "***    ***********************************"
+30057 DATA "**     *****            *                 "
+30058 DATA "**     ******                             "
+30059 DATA "**     *****                              "
+30060 DATA "**    ******                        *     "
+30061 DATA "**     *****     ******     **************"
+30062 DATA "**     *****     *************************"
+30063 DATA "**     *****     *************************"
+30064 DATA "**     *****        *                 *   "
+30065 DATA "**     *****                              "
+30066 DATA "***    *****                              "
+30067 DATA "**     *****                *             "
+30068 DATA "**     ***********************************"
+30069 REMark sheet 2
+30070 DATA "**     ***********************************"
+30071 DATA "**    ******     *               *        "
+30072 DATA "**     *****                              "
+30073 DATA "**     *****                              "
+30074 DATA "**     ******            *                "
+30075 DATA "**     *****     *************************"
+30076 DATA "***    *****     *         *****   *      "
+30077 DATA "**     *****     *         *****          "
+30078 DATA "**     *****     *         *****          "
+30079 DATA "**     *****     *         *****       *  "
+30080 DATA "**    ******     *****     *****     *****"
+30081 DATA "**               *****        *      *****"
+30082 DATA "**               ******        *     *****"
+30083 DATA "**               *****        *      *****"
+30084 DATA "**      *        *****    *    *     *****"
+30085 DATA "************     ***************     *****"
+30086 DATA "************    *****************    *****"
+30087 DATA "************     ***************     *****"
+30088 REMark sheet 3
+30089 DATA "************     ***************     *****"
+30090 DATA "************     *         *****    ******"
+30091 DATA "***     *****              *****     *****"
+30092 DATA "***     ****              ******     *****"
+30093 DATA "****    ****               *****     *****"
+30094 DATA "***     ****     *****     *****     *****"
+30095 DATA "***     ****     *****     ******    *****"
+30096 DATA "***     ****    ******     *****     *****"
+30097 DATA "***     ****     ***************     *****"
+30098 DATA "***    *****     *****         *     *****"
+30099 DATA "***              *****               *****"
+30100 DATA "***             ******               *****"
+30101 DATA "***              *****               *****"
+30102 DATA "***        *     *****              ******"
+30103 DATA "************     ******              *****"
+30104 DATA "************     *****               *****"
+30105 DATA "************     *****    *     **********"
+30106 DATA "******************************************"
+30107 REMark sheet 4
+30108 DATA "******************************************"
+30109 DATA "   *                *                *    "
+30110 DATA "                                          "
+30111 DATA "                                          "
+30112 DATA "           *                 *            "
+30113 DATA "******************************************"
+30114 DATA "   *                *                *    "
+30115 DATA "                                          "
+30116 DATA "                                          "
+30117 DATA "           *                 *            "
+30118 DATA "******************************          **"
+30119 DATA "***********************************     **"
+30120 DATA "***********************************     **"
+30121 DATA "    *            *   ***          *     **"
+30122 DATA "                     ***                **"
+30123 DATA "                     ****               **"
+30124 DATA "         *           ***     *          **"
+30125 DATA "****************     *********************"
+30126 REMark sheet 5
+30127 DATA "****************     *********************"
+30128 DATA "       *             *                 ***"
+30129 DATA "                                      ****"
+30130 DATA "                                       ***"
+30131 DATA " *             *                   *   ***"
+30132 DATA "******************************************"
+30133 DATA "   *           *   *******   *        *   "
+30134 DATA "                   *******                "
+30135 DATA "                   ********               "
+30136 DATA "         *         *******        *       "
+30137 DATA "**************    ********     *****     *"
+30138 DATA "*     ********     *******     *****    **"
+30139 DATA "*     ********     *******     *****     *"
+30140 DATA "*                  *******     *         *"
+30141 DATA "*                  *******     *         *"
+30142 DATA "**                ********    ***        *"
+30143 DATA "*        *         *******     *         *"
+30144 DATA "**************     *******     ***********"
+30145 REMark sheet 6
+30146 DATA "**************     *******     ***********"
+30147 DATA "**     *******     *******          *     "
+30148 DATA "**     *******    *********               "
+30149 DATA "***    *******     *******                "
+30150 DATA "**     *******     *******     *          "
+30151 DATA "**           *     *******     ***********"
+30152 DATA "***                *******     ***********"
+30153 DATA "**                 *******            *   "
+30154 DATA "**                 ********               "
+30155 DATA "**     ********    *******                "
+30156 DATA "**     *******     *******       *        "
+30157 DATA "**    ********     ***********************"
+30158 DATA "**     *******      *                     "
+30159 DATA "**     *******                            "
+30160 DATA "**     *******                            "
+30161 DATA "**     *******               *            "
+30162 DATA "**************     ***********************"
+30163 DATA "******************************************"
+30164 REMark sheet 7
+30165 DATA "******************************************"
+30166 DATA "          *              *                "
+30167 DATA "                                          "
+30168 DATA "                                          "
+30169 DATA "  *              *                 *      "
+30170 DATA "************     *************************"
+30171 DATA "     *   ***     *************************"
+30172 DATA "         ***     ***          *           "
+30173 DATA "         ***     ***                      "
+30174 DATA "         ***     ****                     "
+30175 DATA "****     ***     ***                 *    "
+30176 DATA "****     ***    ***********     **********"
+30177 DATA "*****    ***     **********     **********"
+30178 DATA "****     ***              *     **********"
+30179 DATA "****     ***                    **********"
+30180 DATA "****     ***                    **********"
+30181 DATA "****     ***      *             **********"
+30182 DATA "****     *********************************"
+30183 REMark sheet 8
+30184 DATA "****     *********************************"
+30185 DATA "****     *****   *                *       "
+30186 DATA "*****    *****                            "
+30187 DATA "****     *****                            "
+30188 DATA "****     *****            *               "
+30189 DATA "****     *****     ***********************"
+30190 DATA "         ******    ***********************"
+30191 DATA "        ******                *           "
+30192 DATA "         *****                            "
+30193 DATA "         *****                            "
+30194 DATA "****     *****         *             *    "
+30195 DATA "*****    *****     ***********************"
+30196 DATA "****     *****     **         *           "
+30197 DATA "****         *     **                     "
+30198 DATA "****         *     **                     "
+30199 DATA "****        **     **    *                "
+30200 DATA "****         *     *********     *********"
+30201 DATA "**************     *********     *********"
+30202 REMark sheet 9
+30203 DATA "**************     *********     *********"
+30204 DATA "      *            *      **     ***     *"
+30205 DATA "                          **     ***     *"
+30206 DATA "                          ***    ***    **"
+30207 DATA "             *            **     ***     *"
+30208 DATA "****************************     ***     *"
+30209 DATA "****************************     ***     *"
+30210 DATA "      *                    *             *"
+30211 DATA "                                         *"
+30212 DATA "                                         *"
+30213 DATA "                *                  *     *"
+30214 DATA "******************************************"
+30215 DATA "         *               *                "
+30216 DATA "                                          "
+30217 DATA "                                          "
+30218 DATA "   *             *                 *      "
+30219 DATA "******************************************"
+30220 DATA "******************************************"
+30221 REMark sheet 10
+30222 DATA "******************************************"
+30223 DATA "     *                *              *   *"
+30224 DATA "                                         *"
+30225 DATA "                                         *"
+30226 DATA "            *                *           *"
+30227 DATA "************************************    **"
+30228 DATA "************************************     *"
+30229 DATA "        *                  *     ***     *"
+30230 DATA "                                 ***     *"
+30231 DATA "                                 ***     *"
+30232 DATA "                 *               ***     *"
+30233 DATA "******     *****************     ****    *"
+30234 DATA "******     *****************     ***     *"
+30235 DATA "*    *            *       **     ***     *"
+30236 DATA "*                         **     ***     *"
+30237 DATA "*                         **     ***    **"
+30238 DATA "*          *              **     ***     *"
+30239 DATA "****************************     ***     *"
+30240 REMark sheet 11
+30241 DATA "****************************     ***     *"
+30242 DATA "   *           *     *******     ***     *"
+30243 DATA "                     *******     ***     *"
+30244 DATA "                     *******    ****     *"
+30245 DATA "         *           *******     ***     *"
+30246 DATA "****************     *******     *********"
+30247 DATA "*****************    *******            **"
+30248 DATA "      *                   **            **"
+30249 DATA "                          **           ***"
+30250 DATA "                          **            **"
+30251 DATA "             *            *********     **"
+30252 DATA "***********************************     **"
+30253 DATA "    *              *              *     **"
+30254 DATA "                                        **"
+30255 DATA "                                       ***"
+30256 DATA "           *              *             **"
+30257 DATA "***********************************     **"
+30258 DATA "***********************************     **"
+30259 REMark sheet 12
+30260 DATA "***********************************     **"
+30261 DATA "**     *        *     ***      *        **"
+30262 DATA "**                    ***               **"
+30263 DATA "**                    ***              ***"
+30264 DATA "***                   ***               **"
+30265 DATA "**     **********     ***      ****     **"
+30266 DATA "**     **********     *************     **"
+30267 DATA "**     **             *          **     **"
+30268 DATA "**     **                        ***    **"
+30269 DATA "**    ***                        **     **"
+30270 DATA "**     **     *                  **     **"
+30271 DATA "**     ****************************     **"
+30272 DATA "        *                  *      *     **"
+30273 DATA "                                 *      **"
+30274 DATA "                                  *     **"
+30275 DATA "                *                *      **"
+30276 DATA "**       *********************************"
+30277 DATA "******************************************"
+32000 DEFine PROCedure init
+32010 WINDOW 512,182,0,0
+32012 WINDOW #0,512,74,0,182
+32014 WINDOW #2,236,74,276,182
+32016 WINDOW #4,276,64,0,182
+32018 WINDOW #5,276,10,0,246
+32030 PAPER 2: CLS
+32032 PAPER #2,3: CLS#2
+32034 PAPER #4,7: CLS#4
+32036 PAPER #5,3: CLS#5
+32040 INK #5,5: PRINT #5;"MISSION";: INK #5,7: PRINT #5;" X";: INK #5,4: PRINT #5;"  BY MUCH SOFT"
+32042 INK #4,0: FOR a=5 TO 95 STEP 15: CIRCLE #4,5,a,3: CIRCLE #4,317,a,3: NEXT a
+32044 INK #4,7,0: LINE #4,12,0 TO 12,100: LINE #4,310,0 TO 310,100
+32050 WINDOW #4,246,64,15,182: INK #4,1
+32052 INK #2,0: AT #2,0,5: PRINT #2;"WEITER": AT #2,1,5: PRINT #2;"NEHMEN": AT #2,2,5: PRINT #2;"UNTERSUCHEN": AT #2,3,5: PRINT #2;"SPRENGEN": AT #2,4,5: PRINT #2;"EINSETZEN": AT #2,5,5: PRINT #2;"COMPUTER  ";ri$: AT #2,6,5: PRINT #2;"ZEIT    ";zeit DIV 60;":";zeit MOD 60
+32090 RECOL #5,7,6,5,4,3,2,1,0
+32099 END DEFine 
+32100 DEFine PROCedure udg
+32102 adr=PEEK_L(PEEK_L(163960)+4)+42
+32104 adr2=PEEK_L(PEEK_L(163960)+8)+42
+32106 old_chr=PEEK_L(adr)
+32108 new_chr=RESPR(1442)
+32110 FOR n=0 TO 1442 STEP 4
+32112 POKE_L new_chr+n,PEEK_L(old_chr+n)
+32114 END FOR n
+32116 POKE_L adr,new_chr
+32120 RESTORE 32150: noc=56
+32122 FOR char=1 TO noc
+32124 READ c$: c=CODE(c$)
+32126 cp=new_chr+10+(c-32)*9
+32130 FOR dat=1 TO 9
+32132  READ dd: POKE cp+dat,dd
+32134 END FOR dat
+32136 END FOR char
+32149 END DEFine 
+32150 REMark data's
+32152 DATA "*",124,124,124,124,124,124,124,124,124
+32153 DATA "a",0,0,0,4,4,4,4,0,0
+32154 DATA "b",0,64,252,156,156,252,252,252,120
+32155 DATA "c",0,0,0,128,128,128,128,0,0
+32156 DATA "d",4,196,56,56,196,4,4,4,4
+32157 DATA "e",252,204,12,60,252,252,168,252,252
+32158 DATA "f",128,128,128,128,128,128,128,128,128
+32159 DATA "g",0,12,16,36,76,156,156,64,60
+32160 DATA "h",252,0,120,252,252,72,252,0,252
+32161 DATA "i",0,192,32,144,200,228,228,8,240
+32162 DATA "j",4,12,12,28,52,36,84,84,4
+32163 DATA "k",0,8,252,228,228,252,252,252,120
+32164 DATA "l",128,192,192,224,176,144,168,168,128
+32165 DATA "m",4,4,4,4,4,4,4,4,4
+32166 DATA "n",252,204,192,240,252,252,84,252,252
+32167 DATA "o",128,140,112,112,140,128,128,128,128
+32168 DATA "p",0,60,0,60,0,60,0,60,60
+32169 DATA "q",252,252,0,252,0,252,0,252,252
+32170 DATA "r",0,240,0,240,0,240,0,240,240
+32171 DATA "s",0,72,252,120,120,252,132,252,120
+32172 DATA "t",252,120,204,120,204,120,204,252,252
+32173 DATA "u",0,72,252,252,252,252,252,252,120
+32174 DATA "v",252,252,252,252,252,252,252,252,252
+32175 DATA "+",124,68,84,84,84,84,84,68,124
+32176 DATA "-",0,28,44,84,228,164,168,176,224
+32177 DATA "w",80,112,32,248,32,248,0,0,0
+32178 DATA "x",0,0,20,212,124,212,20,0,0
+32179 DATA "y",0,0,0,124,16,124,16,56,40
+32180 DATA "z",0,0,160,172,248,172,160,0,0
+32190 DATA "J",0,252,252,140,172,172,140,244,252
+32191 DATA "K",0,240,248,116,116,116,20,244,244
+32192 DATA "L",252,252,252,252,252,252,252,64,60
+32193 DATA "M",244,244,244,244,244,244,244,12,252
+32194 DATA "N",0,84,252,112,52,116,252,84,0
+32195 DATA "O",0,84,252,16,84,208,252,84,0
+32196 DATA "P",0,80,248,120,248,120,248,80,0
+32197 DATA "Q",0,32,32,32,32,32,36,40,32
+32198 DATA "R",0,0,72,80,96,192,80,96,192
+32199 DATA "S",32,252,168,252,188,184,168,168,252
+32200 DATA "T",64,248,168,248,248,248,232,168,248
+32201 DATA "U",112,112,32,32,32,32,32,32,32
+32202 DATA "V",112,248,136,184,136,232,136,248,32
+32203 DATA "W",16,16,32,32,64,64,32,16,124
+32204 DATA "X",124,76,84,84,76,124,124,0,124
+32205 DATA "Y",0,60,32,44,44,44,44,44,44
+32206 DATA "Z",44,44,44,44,44,32,60,0,0
+32207 DATA "1",0,252,0,124,124,124,124,124,124
+32208 DATA "2",124,124,124,124,124,0,252,0,0
+32209 DATA "3",0,252,0,252,252,252,252,252,252
+32210 DATA "4",252,252,252,252,252,0,252,0,0
+32211 DATA "5",0,252,4,244,244,228,228,228,228
+32212 DATA "6",228,228,228,228,228,4,252,0,0
+32213 DATA "7",0,252,0,0,0,0,0,0,0
+32214 DATA "8",112,80,112,8,252,0,252,0,0
+32215 DATA "9",0,248,24,24,24,24,24,24,24
+32216 DATA "0",152,152,216,24,248,24,248,0,0
+32220 DEFine PROCedure LLIST (str$)
+32221 PRINT#4: PRINT#4
+32222 BEEP 0,1000,15,13,15,5,5
+32223 FOR a=1 TO LEN(str$): PRINT #4;str$(a);: END FOR a
+32224 BEEP
+32225 END DEFine 
+32230 DEFine FuNction SCR$ (st,py,px)
+32231 RETurn feld$(st,py+1,px+1)
+32232 END DEFine 
+32240 DEFine PROCedure win
+32242 MODE 4: WINDOW #2,512,182,0,0: PAPER #2,0: INK #2,7: CLS#2: CLS#0
+32249 END DEFine 
+32260 DEFine FuNction BIN (b$)
+32262 aus=0: stelle=0
+32264 FOR q=7 TO 0 STEP -1: stelle=stelle+1: IF b$(stelle) THEN aus=aus+2^q: END FOR q
+32266 RETurn aus
+32269 END DEFine 
+32280 DEFine PROCedure pa0
+32284 IF INKEY$<>"" THEN GO TO 32284
+32286 IF INKEY$="" THEN GO TO 32286
+32289 END DEFine 
+32300 DEFine PROCedure selonsh
+32302 f=INT(RND(1))+3: INK f
+32304 sh=INT(RND(2))
+32306 SELect ON sh
+32308  =0: quad$="*"
+32310  =1: quad$="+"
+32312  =2: quad$="-"
+32314 END SELect 
+32319 END DEFine 
+32330 DEFine PROCedure abfrage
+32332 IF quad$="*" THEN END DEFine 
+32334 IF quad$="+" THEN zeit=zeit-20
+32336 IF quad$="-" THEN gameover
+32339 END DEFine 
+32350 DEFine PROCedure explosion (xx,yy)
+32352 pxl=xx*6/1.2: pyl=(17-yy)*10/1.7
+32354 BEEP 0,1,255,1,10,4,0,15
+32356 INK 7
+32358 FOR r=1 TO 15
+32360 FILL 1: CIRCLE pxl,pyl,r: FILL 0
+32362 END FOR r
+32364 INK 0
+32366 FOR r=1 TO 15
+32368 FILL 1: CIRCLE pxl,pyl,r: FILL 0
+32370 END FOR r
+32372 INK 2
+32374 FOR r=1 TO 15
+32376 FILL 1: CIRCLE pxl,pyl,r: FILL 0
+32378 END FOR r: BEEP
+32379 END DEFine 
+32390 DEFine PROCedure gameover
+32392 explosion pos_x,pos_y: LLIST "DAS WARS' !!!       NOCHMAL (J/N) ?"
+32394 REPeat ab
+32396 IF KEYROW(4)=128 THEN EXIT ab
+32398 IF KEYROW(7)=64 THEN POKE_L 163900,0: POKE 163900,25
+32400 END REPeat ab
+32402 neu=1800
+32404 GO TO 50
+32409 END DEFine 
+32420 DEFine PROCedure sieg
+32422 LLIST "SIEG !!!": f=7
+32424 LLIST "NOCHMAL (J/N) ?":  BEEP 0,12,322,54,65,43,2,2
+32426 REPeat ab
+32428 INK f
+32430 AT pos_y-1,pos_x-1: PRINT "asc"
+32432 AT pos_y,pos_x-1: PRINT "jtl"
+32434 AT pos_y+1,pos_x-1: PRINT "pqr"
+32436 f=f-1: IF f<2 THEN f=7
+32440  IF KEYROW(4)=128 THEN EXIT ab
+32442  IF KEYROW(7)=64 THEN POKE_L 163900,0: POKE 163900,25
+32444 END REPeat ab
+32446 neu=neu-150
+32448 BEEP
+32450 GO TO 50
+32452 END DEFine 
+32470 DEFine PROCedure erkl€rung
+32472 POKE_L adr,old_chr: INK 1,0
+32476 st$="Nach einem Marsbeben wurde eine Rost-Mieneteilweise versch‡ttet. Die dort lebenden  Menschen wurden sofort evakuiert, aber einkleiner Roboter, Nr.6, der wichtige unter-lagen bei sich tr€gt, wurde vergessen. Siehaben nun die Aufgabe, ihn aus der Miene  zu befreien. Das k„nnen Sie aber nur mit  Hilfe eines genialen Computers, der den   Roboter dann aus dem Labyrinth beamt. BeimMarsbeben aber wurde der Microchip des    Computers in die Miene hinausgeschleudert.Finden Sie diesen und einige andere n‡tz- liche Teile und setzen Sie den Chip in denComputer ein. Sie k„nnen auch W€nde spren-gen(allerdings nur sehr wenige, diese sindklar von den normalen zu unterscheiden).  Im Men‡ k„nnen Sie die Funktion durch die Cursortasten ausw€hlen und mit <SPACE>aus-w€hlen. Die ‡brige Steuerung erfolgt ‡ber die Cursortasten. Tastenfunktionen:          ESC  - Spielende                          TAB  - Spiel unterbrechen                 CTRL - Men‡"
+32480 CLS: BEEP 0,1000,15,13,15,5,5
+32482 FOR p=1 TO LEN(st$): PRINT st$(p);: PAUSE 1: END FOR p
+32484 PRINT: PRINT: BEEP
+32486 INK 7,5: st$="weiter mit <SPACE>": FOR p=LEN(st$) TO 1 STEP -1: AT 17,10: PRINT st$(p TO): BEEP 500,p/3,1,12,15,p,5: END FOR p
+32490 IF KEYROW(1)=64 THEN GO TO 32494
+32492 GO TO 32490
+32494 POKE_L adr,new_chr: INK 0
+32499 END DEFine 
+32510 DEFine PROCedure musik
+32512 mus=mus+1: IF mus>4 THEN mus=1
+32514 RESTORE 32550: READ h
+32516 FOR anz=1 TO 263
+32518 selonmus
+32520 IF KEYROW(0) THEN END DEFine 
+32522 READ h
+32524 IF BEEPING THEN GO TO 32524
+32526 END FOR anz
+32528 musik
+32529 END DEFine 
+32550 DATA 36,17,12,8,32,17,12,8,29,17,12,10,41,13,10,5
+32552 DATA 34,15,10,5,31,15,10,7,27,15,10,8,39,12,8,3
+32554 DATA 32,13,8,3,20,13,8,5,27,12,8,7,25,17,10,7
+32556 DATA 24,17,10,8,32,17,12,8,30,15,12,10,28,20,13,10
+32558 DATA 27,20,13,12,36,20,15,12,34,19,15,14,32,24,17,14
+32560 DATA 31,24,17,15,32,24,19,15,34,22,19,13,36,20,17,12
+32562 DATA 29,22,17,12,41,22,17,13,29,24,17,13,41,24,18,15
+32564 DATA 29,25,22,15,41,25,22,17,29,27,24,17,41,27,24,19
+32566 DATA 29,41,37,34,31,29,25,22
+32568 DATA 25,29,25,22,19,17,13,10,13,17,13,10,7,5,1,7
+32570 DATA 8,0,5,7,8,0,5,8,10,0,7,8,10,1,7,10
+32572 DATA 12,1,8,10,12,3,8,12,13,3,10,12,13,5,10,13
+32574 DATA 15,5,12,13,15,6,12,15,13,7,10,2,13,7,10,13
+32576 DATA 17,8,12,13,15,8,12,15,18,10,13,15,17,10,13,17
+32578 DATA 20,12,15,17,18,12,15,19,22,12,13,15,13,17,10,19
+32580 DATA 17,20,19,10,12,13,15,17,7,10,9,12,18,9,10,12
+32582 DATA 13,10,13,17,16,19,17,22,21,18,15,12,22,12,19,13
+32600 DEFine PROCedure selonmus
+32602 SELect ON mus
+32604  =1: BEEP 5000,h,322,54,65,43,2,2
+32606  =2: BEEP 5000,h,34,34,21,12,32,2323
+32608  =3: BEEP 5000,h,5,1974,19,74,80,1983
+32610  =4: BEEP 5000,h,18695,4,6,0,5
+32616 END SELect 
+32619 END DEFine 
+32760 DEFine PROCedure SA
+32762 DELETE fdk1_MissionX: SAVE fdk1_MissionX: DIR fdk1_
+32764 END DEFine 

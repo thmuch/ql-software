@@ -1,0 +1,4 @@
+2 REMark PBOOT
+4 PAPER#1,0: PAPER#2,0
+6 LBYTES fdk1_Parallax_pic,131072
+8 MRUN fdk1_Parallax

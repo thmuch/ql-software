@@ -1,0 +1,529 @@
+30000 REMark * * * * * * * * * * * *
+30002 REMark *  QL GAMbasic V1.3   *
+30004 REMark * (c) 1987 Much Soft  *
+30006 REMark * * * * * * * * * * * *
+30008 REMark * Thomas Much         *
+30010 REMark * Koppelweg 16a       *
+30012 REMark * 3201 Diekholzen     *
+30014 REMark * Tel.: 05121/262007  *
+30016 REMark * * * * * * * * * * * *
+30018 DEFine PROCedure GAM_INIT
+30020  ht=0: hp=4: my=10: mx=20
+30022  MODE 4: TRA 1: BAUD 9600
+30024  OPEN#1,con: WINDOW 512,256,0,0
+30026  PAPER hp: INK ht: CLS
+30028  DIM x(26),y(26),b(26),h(26),pp(26),ik(26),scn(26),lt(26),li(26),cw(26),titel$(26,80),info$(26,80),wu(26),file_nam$(128,40),file_num(128),wjn(26)
+30030  FOR a=1 TO 26: x(a)=0: y(a)=0: b(a)=0: h(a)=0: pp(a)=0: ik(a)=0: scn(a)=0: lt(a)=0: li(a)=0: cw(a)=0: wu(a)=0: titel$(a,1 TO 80)="": info$(a,1 TO 80)="": wjn(a)=0: END FOR a
+30032  file$="": device$="fdk1_": dfname$="": dinfo$=""
+30034  file_del
+30036 END DEFine 
+30038 DEFine FuNction BIN (bi$)
+30040  aus=0
+30042  FOR q=7 TO 0 STEP -1: IF bi$(8-q) THEN aus=aus+2^q: END FOR q
+30044  RETurn aus
+30046 END DEFine 
+30048 DEFine PROCedure TLINE (txt$)
+30050  BLOCK 511,1,0,10,0
+30052  INK 0: AT 0,0: PRINT txt$
+30054  text$=txt$
+30056 END DEFine 
+30058 DEFine PROCedure ICON (x,y,num)
+30060  SELect ON num
+30062   =1: pr_bin x,y
+30064   =2: pr_esc x,y
+30066   =3: pr_mouse x,y
+30068   =4: pr_printer x,y
+30070  END SELect 
+30072 END DEFine 
+30074 DEFine PROCedure DIR_ICON (x,y,dev$)
+30076  IF LEN(dev$)<4 THEN MISTake : end def
+30078   IF dev$(1 TO 3)=="MDV" THEN pr_mdv x,y: ic_mdv x,y,dev$(4): END DEFine 
+30080   IF dev$(1 TO 3)=="FDK" THEN pr_fdk x,y: ic_fdk x,y,dev$(4): END DEFine 
+30082   IF dev$(1 TO 3)=="HDK" THEN pr_hdk x,y: ic_hdk x,y,dev$(4): END DEFine 
+30084   IF dev$(1 TO 3)=="RAM" THEN pr_ram x,y: ic_ram x,y,dev$(4): END DEFine 
+30086   pr_oth x,y: ic_oth x,y,dev$(4)
+30088 END DEFine 
+30090 DEFine PROCedure ic_mdv (x,y,dv)
+30092  IF dv>0 THEN BLOCK 4,2,x+2,257-y,7
+30094  IF dv>1 THEN BLOCK 4,2,x+2,260-y,7
+30096  IF dv>2 THEN BLOCK 4,2,x+2,263-y,7
+30098  IF dv>3 THEN BLOCK 4,2,x+28,257-y,7
+30100  IF dv>4 THEN BLOCK 4,2,x+28,260-y,7
+30102  IF dv>5 THEN BLOCK 4,2,x+28,263-y,7
+30104 END DEFine 
+30106 DEFine PROCedure ic_fdk (x,y,dv)
+30108  IF dv>0 THEN BLOCK 4,2,x+6,255-y,7
+30110  IF dv>1 THEN BLOCK 4,2,x+12,255-y,7
+30112  IF dv>2 THEN BLOCK 4,2,x+18,255-y,7
+30114  IF dv>3 THEN BLOCK 4,2,x+24,255-y,7
+30116 END DEFine 
+30118 DEFine PROCedure ic_hdk (x,y,dv)
+30120  IF dv>0 THEN BLOCK 4,2,x+6,267-y,7
+30122  IF dv>1 THEN BLOCK 4,2,x+12,267-y,7
+30124  IF dv>2 THEN BLOCK 4,2,x+18,267-y,7
+30126  IF dv>3 THEN BLOCK 4,2,x+24,267-y,7
+30128 END DEFine 
+30130 DEFine PROCedure ic_ram (x,y,dv)
+30132  IF dv>0 THEN BLOCK 4,2,x+2,257-y,7
+30134  IF dv>1 THEN BLOCK 4,2,x+2,260-y,7
+30136  IF dv>2 THEN BLOCK 4,2,x+2,263-y,7
+30138  IF dv>3 THEN BLOCK 4,2,x+2,266-y,7
+30140  IF dv>4 THEN BLOCK 4,2,x+28,257-y,7
+30142  IF dv>5 THEN BLOCK 4,2,x+28,260-y,7
+30144  IF dv>6 THEN BLOCK 4,2,x+28,263-y,7
+30146  IF dv>7 THEN BLOCK 4,2,x+28,266-y,7
+30148 END DEFine 
+30150 DEFine PROCedure ic_oth (x,y,dv)
+30152  IF dv>0 THEN BLOCK 4,2,x+14,255-y,7
+30154  IF dv>1 THEN BLOCK 4,2,x+20,255-y,7
+30156  IF dv>2 THEN BLOCK 4,2,x+26,255-y,7
+30158  IF dv>3 THEN BLOCK 4,2,x+4,269-y,7
+30160  IF dv>4 THEN BLOCK 4,2,x+10,269-y,7
+30162  IF dv>5 THEN BLOCK 4,2,x+16,269-y,7
+30164 END DEFine 
+30166 DEFine PROCedure CLOCK (cly,clx)
+30168  dt$=DATE$: AT cly,clx
+30170  PRINT dt$(13 TO 17)
+30172 END DEFine 
+30174 DEFine PROCedure MOUSE_INIT (za)
+30176  RESTORE 30840
+30178  adr=PEEK_L(PEEK_L(163960)+4)+42
+30180  old_chr=PEEK_L(adr): new_chr=RESPR(1442)
+30182  FOR n=0 TO 1442 STEP 4
+30184   POKE_L new_chr+n,PEEK_L(old_chr+n)
+30186  END FOR n
+30188  FOR cha=1 TO 12
+30190   READ c$: c=CODE(c$): cp=new_chr+10+(c-32)*9
+30192   FOR dat=1 TO 9
+30194    READ dt: POKE cp+dat,dt
+30196   END FOR dat
+30198  END FOR cha
+30200  IF za>0 THEN RESTORE za: FOR cha=1 TO 2: READ c$: c=CODE(c$): cp=new_chr+10+(c-32)*9: FOR dat=1 TO 9: READ dt: POKE cp+dat,dt: END FOR dat: END FOR cha
+30202 END DEFine 
+30204 DEFine PROCedure CHAR (knl,new_adr)
+30206  POKE_L PEEK_L(PEEK_L(163960)+4*knl)+42,new_adr
+30208 END DEFine 
+30210 DEFine PROCedure MOUSE (num,ccy,ccx,my,mx)
+30212  SELect ON num
+30214   =0: pf$="MN"
+30216   =1: pf$="AB"
+30218   =2: pf$="CD"
+30220   =3: pf$="EF"
+30222   =4: pf$="GH"
+30224   =5: pf$="IJ"
+30226   =6: pf$="KL"
+30228   =REMAINDER : pf$="AB"
+30230  END SELect 
+30232  CHAR 1,new_chr: cx=ccx: cy=ccy
+30234  INK 4: OVER-1: AT my,mx: PRINT pf$
+30236  REPeat warten
+30238   INK 0: OVER 0
+30240   REPeat wa2
+30242    kw1=KEYROW(1): CLOCK cy,cx
+30244    IF KEYROW(7)&&2 THEN IF KEYROW(2)&&2 THEN HARDCOPY
+30246    IF kw1>0 THEN EXIT wa2
+30248   END REPeat wa2
+30250   INK 4: OVER-1
+30252   AT my,mx: PRINT pf$
+30254    my=my+(kw1=128)-(kw1=4)+(kw1=130)+(kw1=144)-(kw1=6)-(kw1=20)
+30256    mx=mx+(kw1=16)-(kw1=2)+(kw1=144)+(kw1=20)-(kw1=6)-(kw1=130)
+30258    IF mx<0 THEN mx=83
+30260    IF mx>83 THEN mx=0
+30262    IF my<0 THEN my=24
+30264    IF my>24 THEN my=0
+30266   AT my,mx: PRINT pf$
+30268   IF KEYROW(1)=64 THEN EXIT warten
+30270  END REPeat warten
+30272  AT my,mx: PRINT pf$
+30274  OVER 0: INK 0: CHAR 1,old_chr
+30276 END DEFine 
+30278 DEFine PROCedure COM_BOX (cnum,spl,bef$,lbef)
+30280  com_rech (bef$)
+30282  hhe=anz*10+6: brt=lan*6+6
+30284  BLOCK brt,hhe+6,spl*6-2,11,0: BLOCK brt-2,hhe+4,spl*6-1,12,7
+30286  bre=lbef*6+24
+30288  OVER-1: BLOCK bre,10,spl*6-12,0,7: OVER 0
+30290  zei=2: spa=spl: INK 0: PAPER 7
+30292  FOR ste=1 TO LEN(bef$)
+30294   IF bef$(ste)="/" THEN zei=zei+1: spa=spl: GO TO 30300
+30296   AT zei,spa: PRINT bef$(ste)
+30298   spa=spa+1
+30300  END FOR ste
+30302  INK ht: PAPER 4
+30304  MOUSE cnum,0,72,my,mx
+30306  IF my>anz+1 OR my<2 THEN number=0: GO TO 30312
+30308  IF mx<spl-1 OR mx>spl+lan THEN number=0: GO TO 30312
+30310  number=my-1
+30312  OVER-1: BLOCK bre,10,spl*6-12,0,7: OVER 0
+30314  BLOCK brt,hhe+6,spl*6-2,11,4
+30316 END DEFine 
+30318 DEFine PROCedure com_rech (beff$)
+30320  anz=1: lan=0: lan2=0
+30322  FOR stl=1 TO LEN(beff$)
+30324   IF beff$(stl)="/" THEN anz=anz+1: IF lan2>lan THEN lan=lan2
+30326   IF beff$(stl)="/" THEN lan2=0: GO TO 30330
+30328   lan2=lan2+1
+30330  END FOR stl
+30332  IF lan2>lan THEN lan=lan2
+30334 END DEFine 
+30336 DEFine PROCedure OPEN_WIND (pnum,px,py,pb,ph,ttl$,inf$,ppp,pik)
+30338  nu=pnum: x(nu)=px: y(nu)=py: b(nu)=pb: h(nu)=ph: lt(nu)=LEN(ttl$): li(nu)=LEN(inf$): titel$(nu,1 TO lt(nu))=ttl$: info$(nu,1 TO li(nu))=inf$: pp(nu)=ppp: ik(nu)=pik: cw(nu)=1
+30340  IF x(nu)/6<>INT(x(nu)/6) THEN x(nu)=x(nu)-1: GO TO 30340
+30342  IF y(nu)/10<>INT(y(nu)/10) THEN y(nu)=y(nu)-1: GO TO 30342
+30344  IF b(nu)/6<>INT(b(nu)/6) THEN b(nu)=b(nu)-1: GO TO 30344
+30346  IF h(nu)/10<>INT(h(nu)/10) THEN h(nu)=h(nu)-1: GO TO 30346
+30348  y(nu)=y(nu)+4
+30350  scn(nu)=1
+30352  OPEN#nu+4,con: WINDOW#nu+4,b(nu),h(nu),x(nu),255-y(nu)
+30354  BLOCK b(nu),h(nu),x(nu)+5,260-y(nu),7,0
+30356  BLOCK b(nu)+2,h(nu)+2,x(nu)-1,254-y(nu),0: PAPER#nu+4,7: CLS#nu+4
+30358  BLOCK b(nu),10,x(nu),255-y(nu),85
+30360  INK#nu+4,0: AT#nu+4,0,0: PRINT#nu+4;"C": AT#nu+4,0,b(nu)/6-1: PRINT#nu+4;"M"
+30362  BLOCK 1,10,x(nu)+6,255-y(nu),0: BLOCK 1,10,x(nu)+b(nu)-7,255-y(nu),0
+30364  AT#nu+4,0,INT(((b(nu)-12)/6)/2)-INT(lt(nu)/2): PRINT#nu+4;titel$(nu,1 TO lt(nu))
+30366  BLOCK b(nu),1,x(nu),264-y(nu),0
+30368  AT#nu+4,1,INT((b(nu)/6)/2)-INT(li(nu)/2): PRINT#nu+4;info$(nu,1 TO li(nu))
+30370  BLOCK b(nu),1,x(nu),274-y(nu),0
+30372  WINDOW#nu+4,b(nu),h(nu)-20,x(nu),275-y(nu): PAPER#nu+4,pp(nu): INK#nu+4,ik(nu): CLS#nu+4
+30374 END DEFine 
+30376 DEFine PROCedure CLOSE_WIND (pnu)
+30378  CLOSE#pnu+4: cw(pnu)=0
+30380  BLOCK b(pnu)+6,h(pnu)+6,x(pnu)-1,254-y(pnu),4
+30382  scn(pnu)=0
+30384 END DEFine 
+30386 DEFine PROCedure LAST_WIND (pnu)
+30388  OVER 0
+30390  OPEN_WIND pnu,x(pnu),y(pnu)-4,b(pnu),h(pnu),titel$(pnu,1 TO lt(pnu)),info$(pnu,1 TO li(pnu)),pp(pnu),ik(pnu),lt(pnu),li(pnu)
+30392 END DEFine 
+30394 DEFine PROCedure CHECK_WIND (pnu)
+30396  IF NOT scn(pnu) THEN END DEFine 
+30398  cw(pnu)=1
+30400  posx1=INT(x(pnu)/6): posx2=INT((x(pnu)-6)/6): posy=INT((254-y(pnu))/10)
+30402  posx3=INT((x(pnu)+b(pnu)-6)/6): posx4=INT((x(pnu)+b(pnu)-12)/6)
+30404  IF posx1=mx OR posx2=mx THEN IF posy=my THEN CLOSE_WIND pnu
+30406  IF posx3=mx OR posx4=mx THEN IF posy=my THEN MOVE_WIND pnu
+30408 END DEFine 
+30410 DEFine PROCedure MOVE_WIND (nu)
+30412  CLOSE_WIND nu
+30414  INK 4: OVER-1: BLOCK b(nu)+6,h(nu)+6,x(nu)-1,254-y(nu),7,0
+30416  REPeat warten
+30418   OVER 0: INK 0
+30420   REPeat wa2
+30422    kw1=KEYROW(1): CLOCK cy,cx
+30424    IF kw1>0 THEN EXIT wa2
+30426   END REPeat wa2
+30428   INK 4: OVER-1: BLOCK b(nu)+6,h(nu)+6,x(nu)-1,254-y(nu),7,0
+30430   SELect ON kw1
+30432    =2: x(nu)=x(nu)-6
+30434    =16: x(nu)=x(nu)+6
+30436    =4: y(nu)=y(nu)+10
+30438    =128: y(nu)=y(nu)-10
+30440    =144: x(nu)=x(nu)+6: y(nu)=y(nu)-10
+30442    =130: x(nu)=x(nu)-6: y(nu)=y(nu)-10
+30444    =20: x(nu)=x(nu)+6: y(nu)=y(nu)+10
+30446    =6: x(nu)=x(nu)-6: y(nu)=y(nu)+10
+30448   END SELect 
+30450    IF y(nu)>234 THEN y(nu)=234
+30452    IF y(nu)<h(nu)+10 THEN y(nu)=h(nu)+10
+30454    IF x(nu)<6 THEN x(nu)=6
+30456    IF x(nu)+b(nu)+5>504 THEN x(nu)=499-b(nu)
+30458   BLOCK b(nu)+6,h(nu)+6,x(nu)-1,254-y(nu),7,0
+30460   IF KEYROW(1)=64 THEN EXIT warten
+30462  END REPeat warten
+30464  BLOCK b(nu)+6,h(nu)+6,x(nu)-1,254-y(nu),7,0
+30466  OVER 0: INK ht
+30468  LAST_WIND nu: cw(nu)=2
+30470 END DEFine 
+30472 DEFine FuNction WPX (nu)
+30474  RETurn INT(x(nu)/6)
+30476 END DEFine 
+30478 DEFine FuNction WPY (nu)
+30480  RETurn INT((254-y(nu))/10)
+30482 END DEFine 
+30484 DEFine PROCedure QUIT
+30486  POKE_L 163900,0: POKE 163900,25
+30488 END DEFine 
+30490 DEFine PROCedure CHECK (rt,tto,cy,cx,my,mx)
+30492  MOUSE rt,cy,cx,my,mx
+30494  FOR wd=1 TO tto
+30496   CHECK_WIND wd
+30498  END FOR wd
+30500 END DEFine 
+30502 DEFine PROCedure REPAIR_WIND
+30504  FOR dw=1 TO 26
+30506   IF NOT scn(dw) THEN GO TO 30512
+30508   LAST_WIND dw
+30510   cw(dw)=2
+30512  END FOR dw
+30514 END DEFine 
+30516 DEFine PROCedure OPEN_DIR (dvc$)
+30518  DELETE dvc$&"dir_inh"
+30520  OPEN_NEW#4,dvc$&"dir_inh"
+30522  DIR#4,dvc$: CLOSE#4
+30524 END DEFine 
+30526 DEFine PROCedure DIR_WIND (dx,dy,dev$)
+30528  page_num=1: tit_num=1: file_del
+30530  device$=dev$: OPEN_DIR device$
+30532  OPEN#32,dev$&"dir_inh"
+30534  INPUT#32,dfname$: INPUT#32,dinfo$
+30536  OPEN_WIND 26,dx,dy,124,120,"D: "&device$,dinfo$,7,0
+30538  AT#30,9,0: PRINT#30;CHR$(188);CHR$(188);" ";dfname$;":"
+30540  AT#30,9,18: PRINT#30;CHR$(189);CHR$(189)
+30542  AT#30,9,15: PRINT#30;page_num
+30544  REPeat nf
+30546   IF EOF(#32) THEN EXIT nf
+30548   INPUT#32,fnam$
+30550   file_nam$(tit_num,1 TO 40)=fnam$: file_num(tit_num)=LEN(fnam$)
+30552   tit_num=tit_num+1
+30554  END REPeat nf
+30556  CLOSE#32: tit_num=1
+30558  IF page_num<1 THEN page_num=1
+30560  IF page_num>16 THEN page_num=16
+30562  file_print
+30564  MOUSE 6,0,72,my,mx
+30566  CHECK_WIND 26: IF cw(26)=0 THEN file$="": GO TO 30582
+30568  IF mx>=WPX(26)-1 AND mx<=WPX(26)+1 THEN IF my=WPY(26)+11 THEN page_num=page_num-1: GO TO 30558
+30570  IF mx>=WPX(26)+17 AND mx<=WPX(26)+19 THEN IF my=WPY(26)+11 THEN page_num=page_num+1: GO TO 30558
+30572  IF mx<WPX(26)-1 OR mx>WPX(26)+19 THEN GO TO 30558
+30574  IF my<WPY(26)+2 OR my>WPY(26)+9 THEN GO TO 30558
+30576  tit_num=(page_num-1)*8+(my-WPY(26)-1)
+30578  file$=file_nam$(tit_num,1 TO file_num(tit_num))
+30580  CLOSE_WIND 26: REPAIR_WIND
+30582 END DEFine 
+30584 DEFine PROCedure file_print
+30586  AT#30,0,0
+30588  FOR as=(page_num-1)*8+1 TO (page_num-1)*8+8
+30590   PRINT#30;file_nam$(as,1 TO 20)
+30592  END FOR as
+30594  AT#30,9,15: PRINT#30;page_num;" "
+30596  AT#30,9,0: PRINT#30;CHR$(188);CHR$(188);" ";dfname$;":"
+30598  AT#30,9,18: PRINT#30;CHR$(189);CHR$(189)
+30600 END DEFine 
+30602 DEFine PROCedure file_del
+30604  FOR nm=1 TO 128
+30606   file_nam$(nm,1 TO 40)="": file_num(nm)=0
+30608  END FOR nm
+30610 END DEFine 
+30612 DEFine PROCedure ALERT (ax,ay,sign,tex$,cmd$,def_but)
+30614  OPEN#31,con: WINDOW#31,250,58,ax,255-ay
+30616  PAPER#31,2: CLS#31: BORDER#31,2,0
+30618  IF sign>0 THEN alert_sign
+30620  spt=0: rhe=0: INK#31,7
+30622  FOR nn=1 TO LEN(tex$)
+30624   IF tex$(nn)="/" THEN spt=0: rhe=rhe+1: GO TO 30630
+30626   AT#31,rhe,spt: PRINT#31;tex$(nn)
+30628   spt=spt+1
+30630  END FOR nn
+30632  spt=3: num_max=1
+30634  FOR nn=1 TO LEN(cmd$)
+30636   IF cmd$(nn)="/" THEN spt_chg: num_max=num_max+1: GO TO 30642
+30638   AT#31,4,spt: PRINT#31;cmd$(nn)
+30640   spt=spt+1
+30642  END FOR nn
+30644  OVER#31,-1: BLOCK#31,63,10,18,40,7
+30646  num_but=1
+30648  REPeat warten
+30650   kr1=KEYROW(1)
+30652   IF kr1=1 THEN num_but=def_but: EXIT warten
+30654   IF kr1=64 THEN EXIT warten
+30656   IF kr1>0 THEN alert_chk
+30658  END REPeat warten
+30660  OVER#31,0
+30662  BORDER#31,0: PAPER#31,4: CLS#31: CLOSE#31
+30664  REPAIR_WIND
+30666 END DEFine 
+30668 DEFine PROCedure spt_chg
+30670  IF spt<14 THEN spt=15: END DEFine 
+30672  IF spt<26 THEN spt=27: END DEFine 
+30674 END DEFine 
+30676 DEFine PROCedure alert_chk
+30678  IF kr1<>2 AND kr1<>16 THEN END DEFine 
+30680  BLOCK#31,63,10,(num_but-1)*72+18,40,7
+30682  num_but=num_but+(kr1=16)-(kr1=2)
+30684  IF num_but<1 THEN num_but=1
+30686  IF num_but>num_max THEN num_but=num_max
+30688  BLOCK#31,63,10,(num_but-1)*72+18,40,7
+30690 END DEFine 
+30692 DEFine PROCedure alert_sign
+30694  IF sign>3 THEN END DEFine 
+30696   IF sign=1 THEN INK#31,0: FILL#31,1: LINE#31,280,60 TO 270,95 TO 300,95 TO 290,60 TO 280,60: CIRCLE#31,285,48,8: FILL#31,0: INK#31,7: LINE#31,280,60 TO 270,95 TO 300,95 TO 290,60 TO 280,60: CIRCLE#31,285,48,8: END DEFine 
+30698   IF sign=2 THEN INK#31,0: FILL#31,1: LINE#31,263,95 TO 263,88 TO 290,88 TO 290,95 TO 263,95: LINE#31,290,88 TO 297,88 TO 297,78 TO 290,78 TO 290,88: LINE#31,270,78 TO 290,78 TO 290,71 TO 270,71 TO 270,78: LINE#31,263,71 TO 270,71 TO 270,61 TO 263,61 TO 263,71: LINE#31,270,61 TO 297,61 TO 297,54 TO 270,54 TO 270,61: CIRCLE#31,280,44,6: FILL#31,0
+30700   IF sign=2 THEN INK#31,7: LINE#31,263,95 TO 263,88 TO 290,88 TO 290,95 TO 263,95: LINE#31,290,88 TO 297,88 TO 297,78 TO 290,78 TO 290,88: LINE#31,270,78 TO 290,78 TO 290,71 TO 270,71 TO 270,78: LINE#31,263,71 TO 270,71 TO 270,61 TO 263,61 TO 263,71: LINE#31,270,61 TO 297,61 TO 297,54 TO 270,54 TO 270,61: CIRCLE#31,280,44,6: END DEFine 
+30702   IF sign=3 THEN INK#31,7: FILL#31,1: LINE#31,260,55 TO 260,75 TO 280,95 TO 300,95 TO 320,75 TO 320,55 TO 300,35 TO 280,35 TO 260,55: FILL#31,0: INK#31,2: FILL#31,1: LINE#31,266,55 TO 266,75 TO 280,89 TO 300,89 TO 316,74 TO 316,55 TO 300,41 TO 280,41 TO 266,55: FILL#31,0
+30704   IF sign=3 THEN INK#31,0: LINE#31,260,55 TO 260,75 TO 280,95 TO 300,95 TO 320,75 TO 320,55 TO 300,35 TO 280,35 TO 260,55: INK#31,7: CURSOR#31,196,15: PRINT#31;"STOP": END DEFine 
+30706 END DEFine 
+30708 DEFine PROCedure SAVE_WIND (spx,spy)
+30710  ALERT spx,spy,1,"/     Save Windows to/","  mdv1_/  fdk1_/  Cancel",3
+30712  SELect ON num_but
+30714   =3: END DEFine 
+30716   =1: wsdev$="mdv1_"
+30718   =2: wsdev$="fdk1_"
+30720  END SELect 
+30722  DELETE wsdev$&"windows_dat"
+30724  OPEN_NEW#4,wsdev$&"windows_dat"
+30726  FOR sl1=1 TO 26
+30728   PRINT#4,x(sl1)
+30730   PRINT#4,y(sl1)
+30732  END FOR sl1
+30734  CLOSE#4
+30736 END DEFine 
+30738 DEFine PROCedure LOAD_WIND (spx,spy)
+30740  ALERT spx,spy,2,"/     Load Windows from/","  mdv1_/  fdk1_/  Cancel",3
+30742  SELect ON num_but
+30744   =3: END DEFine 
+30746   =1: wldev$="mdv1_"
+30748   =2: wldev$="fdk1_"
+30750  END SELect 
+30752  FOR a=1 TO 26: wjn(a)=0: END FOR a
+30754  FOR sl1=1 TO 26
+30756   IF scn(sl1) THEN CLOSE_WIND sl1: wjn(sl1)=1
+30758  END FOR sl1
+30760  OPEN#4,wldev$&"windows_dat"
+30762  FOR sll=1 TO 26
+30764   INPUT#4,x(sll)
+30766   INPUT#4,y(sll)
+30768  END FOR sll
+30770  CLOSE#4
+30772  FOR sl2=1 TO 26
+30774   IF wjn(sl2) THEN LAST_WIND sl2: cw(sl2)=2
+30776  END FOR sl2
+30778 END DEFine 
+30780 DEFine PROCedure SINCLAIR (pox,poy)
+30782  BLOCK 5,1,pox,poy+2,0: BLOCK 5,1,pox,poy+4,0: BLOCK 5,1,pox,poy+6,0
+30784  BLOCK 1,1,pox,poy+3,0: BLOCK 1,1,pox+4,poy+5,0
+30786  BLOCK 1,5,pox+6,poy+2,0: BLOCK 1,1,pox+6,poy,0
+30788  BLOCK 1,5,pox+8,poy+2,0: BLOCK 5,1,pox+8,poy+2,0: BLOCK 1,5,pox+12,poy+2,0
+30790  BLOCK 1,5,pox+14,poy+2,0: BLOCK 5,1,pox+14,poy+2,0: BLOCK 5,1,pox+14,poy+6,0
+30792  BLOCK 1,7,pox+20,poy,0
+30794  BLOCK 5,1,pox+22,poy+2,0: BLOCK 5,1,pox+22,poy+4,0: BLOCK 5,1,pox+22,poy+6,0
+30796  BLOCK 1,1,pox+22,poy+5,0: BLOCK 1,1,pox+26,poy+5,0: BLOCK 1,1,pox+26,poy+3,0
+30798  BLOCK 1,5,pox+28,poy+2,0: BLOCK 1,1,pox+28,poy,0
+30800  BLOCK 1,5,pox+30,poy+2,0: BLOCK 5,1,pox+30,poy+2,0
+30802 END DEFine 
+30804 DEFine FuNction FREE
+30806  RETurn PEEK_L(163856)-PEEK_L(163852)
+30808 END DEFine 
+30810 DEFine FuNction EXIST (dvfn$)
+30812  exst=0
+30814  OPEN_DIR dvfn$(1 TO 5)
+30816  OPEN#4,dvfn$(1 TO 5)&"dir_inh"
+30818  INPUT#4;dum$: INPUT#4;dum$
+30820  REPeat loop
+30822   IF EOF(#4) THEN EXIT loop
+30824   INPUT#4;cfl$
+30826   IF cfl$==dvfn$(6 TO LEN(dvfn$)) THEN exst=1: EXIT loop
+30828  END REPeat loop
+30830  CLOSE#4
+30832  RETurn exst
+30834 END DEFine 
+30836 DATA 10,32,32,119,114,105,116,116,101,110,32,98,121,32,84,77,32,105,110,32,49,57,56,55,10
+30838 DATA 32,99,111,112,121,114,105,103,104,116,32,32,98,121,32,77,117,99,104,32,83,111,102,116
+30840 REMark Mouse Icons
+30842  DATA "A",124,124,120,124,108,68,0,0,0
+30844  DATA "B",128,0,0,0,128,192,224,112,48
+30846  DATA "C",4,4,4,0,112,0,4,4,4
+30848  DATA "D",0,0,0,0,112,0,0,0,0
+30850  DATA "E",12,12,12,112,112,12,12,12,0
+30852  DATA "F",0,0,0,224,224,0,0,0,0
+30854  DATA "G",8,8,8,120,0,120,8,8,8
+30856  DATA "H",128,128,128,240,0,240,128,128,128
+30858  DATA "I",124,64,64,64,64,64,64,64,124
+30860  DATA "J",240,16,16,16,16,16,16,16,240
+30862  DATA "K",124,64,0,0,0,0,0,64,124
+30864  DATA "L",240,16,0,0,0,0,0,16,240
+30866 REMark Dir Icons
+30868 DEFine PROCedure pr_mdv (xx,yy)
+30870  BLOCK 4,3,xx+6,256-yy,0: BLOCK 4,3,xx+20,256-yy,0
+30872  BLOCK 10,1,xx+10,257-yy,2: BLOCK 18,10,xx+6,259-yy,0
+30874  BLOCK 22,1,xx+4,266-yy,0: BLOCK 22,1,xx+4,268-yy,0
+30876  BLOCK 2,1,xx+10,260-yy,7: BLOCK 2,1,xx+8,261-yy,7
+30878  BLOCK 2,1,xx+18,260-yy,7: BLOCK 2,1,xx+20,261-yy,7
+30880  BLOCK 2,1,xx+8,265-yy,7: BLOCK 2,1,xx+10,266-yy,7
+30882  BLOCK 2,1,xx+20,265-yy,7: BLOCK 2,1,xx+18,266-yy,7
+30884 END DEFine 
+30886 DEFine PROCedure pr_fdk (xx,yy)
+30888  BLOCK 26,13,xx+2,257-yy,0
+30890  BLOCK 6,4,xx+12,265-yy,2
+30892  BLOCK 6,1,xx+12,262-yy,4
+30894  BLOCK 2,3,xx+14,261-yy,4
+30896 END DEFine 
+30898 DEFine PROCedure pr_hdk (xx,yy)
+30900  BLOCK 26,7,xx+2,258-yy,0
+30902  BLOCK 2,1,xx+6,263-yy,2: BLOCK 4,1,xx+22,263-yy,4
+30904  BLOCK 22,1,xx+4,260-yy,7: BLOCK 10,1,xx+10,261-yy,7
+30906 END DEFine 
+30908 DEFine PROCedure pr_ram (xx,yy)
+30910  BLOCK 14,15,xx+8,255-yy,0
+30912  BLOCK 6,7,xx+12,259-yy,4
+30914  FOR rh=0 TO 15 STEP 2
+30916   BLOCK 2,1,xx+6,255-yy+rh,2
+30918   BLOCK 2,1,xx+22,255-yy+rh,2
+30920  END FOR rh
+30922 END DEFine 
+30924 DEFine PROCedure pr_oth (xx,yy)
+30926  BLOCK 18,3,xx+10,258-yy,2
+30928  BLOCK 18,3,xx+2,264-yy,0
+30930  FOR rh=0 TO 4
+30932   BLOCK 2,rh*2+1,xx+rh*2,255-yy+(4-rh),2
+30934  END FOR rh
+30936  FOR rh=4 TO 0 STEP -1
+30938   BLOCK 2,rh*2+1,xx+(4-rh)*2+20,261-yy+(4-rh),0
+30940  END FOR rh
+30942 END DEFine 
+30944 REMark Icons
+30946 DEFine PROCedure pr_bin (xx,yy)
+30948  BLOCK 6,5,xx+4,255-yy,7: BLOCK 2,5,xx+14,255-yy,7
+30950  BLOCK 2,1,xx+6,256-yy,4: BLOCK 2,1,xx+6,258-yy,4: BLOCK 2,1,xx+8,257-yy,4
+30952  BLOCK 2,5,xx+20,255-yy,7: BLOCK 2,5,xx+26,255-yy,7
+30954  BLOCK 2,2,xx+22,256-yy,7: BLOCK 2,2,xx+24,257-yy,7
+30956  BLOCK 18,9,xx+6,261-yy,0: BLOCK 4,1,xx+6,260-yy,0: BLOCK 4,1,xx+20,260-yy,0
+30958  BLOCK 2,8,xx+8,261-yy,7: BLOCK 2,8,xx+20,261-yy,7
+30960  BLOCK 2,7,xx+12,262-yy,7: BLOCK 2,7,xx+16,262-yy,7
+30962 END DEFine 
+30964 DEFine PROCedure pr_esc (xx,yy)
+30966  BLOCK 30,15,xx,255-yy,2: BLOCK 22,11,xx+4,257-yy,4
+30968  BLOCK 18,1,xx+6,262-yy,7: BLOCK 4,1,xx+16,263-yy,7
+30970  BLOCK 8,1,xx+12,264-yy,7: BLOCK 2,1,xx+18,265-yy,7
+30972  BLOCK 6,1,xx+18,266-yy,7: BLOCK 2,1,xx+6,261-yy,7
+30974  BLOCK 2,1,xx+12,261-yy,7: BLOCK 6,1,xx+12,260-yy,7
+30976  BLOCK 4,1,xx+6,260-yy,7: BLOCK 2,1,xx+6,259-yy,7
+30978  BLOCK 6,1,xx+6,258-yy,7
+30980 END DEFine 
+30982 DEFine PROCedure pr_mouse (xx,yy)
+30984  BLOCK 18,8,xx+4,260-yy,0: BLOCK 14,1,xx+6,259-yy,0: BLOCK 14,1,xx+6,268-yy,0
+30986  BLOCK 6,3,xx+6,260-yy,2: BLOCK 6,3,xx+14,260-yy,2
+30988  BLOCK 2,2,xx+12,257-yy,7: BLOCK 2,1,xx+14,256-yy,7
+30990  BLOCK 8,1,xx+16,255-yy,7: BLOCK 2,2,xx+24,256-yy,7
+30992  BLOCK 2,6,xx+26,258-yy,7: BLOCK 2,5,xx+24,264-yy,7
+30994  BLOCK 2,1,xx+22,269-yy,7
+30996 END DEFine 
+30998 DEFine PROCedure pr_printer (xx,yy)
+31000  BLOCK 30,5,xx,264-yy,0: BLOCK 26,3,xx+2,265-yy,2
+31002  BLOCK 2,1,xx+20,266-yy,7: BLOCK 2,1,xx+24,266-yy,7
+31004  BLOCK 26,3,xx+2,261-yy,2: BLOCK 22,3,xx+4,261-yy,7
+31006  BLOCK 26,5,xx+4,256-yy,2: BLOCK 22,4,xx+6,257-yy,7
+31008  BLOCK 2,1,xx+6,262-yy,0: BLOCK 2,1,xx+22,262-yy,0
+31010  BLOCK 2,1,xx+8,260-yy,0: BLOCK 2,1,xx+24,260-yy,0
+31012  BLOCK 2,1,xx+8,258-yy,0: BLOCK 2,1,xx+24,258-yy,0
+31014 END DEFine 
+31016 DEFine PROCedure HARDCOPY
+31018  OPEN#3,ser1
+31020  PRINT#3;CHR$(27);"A";CHR$(8);
+31022  FOR spalte=0 TO 127 STEP 2
+31024   PRINT#3;CHR$(27);"L";CHR$(0);CHR$(2);
+31026   FOR stelle=32640 TO 0 STEP -128
+31028    FOR mal=0 TO 1
+31030     PRINT#3;CHR$((PEEK(131072+stelle+spalte))||(PEEK(131073+stelle+spalte)));
+31032    END FOR mal
+31034   END FOR stelle
+31036   PRINT#3;CHR$(10);
+31038  END FOR spalte
+31040  CLOSE#3
+31042 END DEFine 
+31044 DEFine PROCedure WAIT
+31046  IF INKEY$<>"" THEN GO TO 31046
+31048  IF INKEY$="" THEN GO TO 31048
+31050 END DEFine 
+31052 DEFine PROCedure SA
+31054  DELETE fdk1_GAMbasic: SAVE fdk1_GAMbasic,30000 TO: DIR fdk1_
+31056 END DEFine 
