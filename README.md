@@ -28,3 +28,15 @@ name (remember, it was at least a year before Unicode!).
 You'll find old archives of my software [here](https://snailshell.de/QL/).
 And if you want to learn more about SuperBASIC and the QL: Someone
 digitized the [QL users manual](http://www.dilwyn.me.uk/docs/ebooks/olqlug/) 😃
+
+
+## Bootloader images
+
+Some of the applications featured fancy bootloader images – with 8 colours
+and 256x256 pixels (stretched to 512x256 pixels):
+
+![MissionX](images/MissionX.png)
+
+![PaintShop](images/PaintShop.png)
+
+![Parallax](images/Parallax.png)
